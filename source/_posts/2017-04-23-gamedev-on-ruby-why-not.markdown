@@ -3,7 +3,7 @@ layout: post
 title: "Gamedev on Ruby? Why not!"
 date: 2017-04-23 12:18:04 +0200
 comments: true
-categories:
+categories: ruby, gamedev, snake, games, game-development, snake-game, rspec, TDD, test-driven-development
 ---
 > This is a copy of my [original post for Diatom Enterprises](http://www.diatomenterprises.com/gamedev-on-ruby-why-not/)
 
