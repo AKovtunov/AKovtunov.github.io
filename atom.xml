@@ -4,7 +4,7 @@
   <title><![CDATA[My Octopress Blog]]></title>
   <link href="http://akovtunov.github.io/atom.xml" rel="self"/>
   <link href="http://akovtunov.github.io/"/>
-  <updated>2017-04-23T00:24:30+02:00</updated>
+  <updated>2017-04-23T02:22:39+02:00</updated>
   <id>http://akovtunov.github.io/</id>
   <author>
     <name><![CDATA[Your Name]]></name>
@@ -12,5 +12,694 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[React Native in One Day: Android Application for Tracking Your Spends With Google Maps Support]]></title>
+    <link href="http://akovtunov.github.io/blog/2017/04/23/react-native-in-one-day-android-application-for-tracking-your-spends-with-google-maps-support/"/>
+    <updated>2017-04-23T00:32:26+02:00</updated>
+    <id>http://akovtunov.github.io/blog/2017/04/23/react-native-in-one-day-android-application-for-tracking-your-spends-with-google-maps-support</id>
+    <content type="html"><![CDATA[<p><img class="center" src="http://akovtunov.github.io/images/react_maps/title_image.png"></p>
+
+<p>Usually I travel a lot by my car and make blog posts about it. And usually readers ask me about the mileage, gas consumption and other useful information. So I have decided to create a simple application, where I would be able to save all this information just in few clicks, without any registrations, advertisements and big tracking applications. I’ve never written any Android application and I wanted to take a look at the React library, so react-native was the best choice for me.</p>
+
+<h2>BASIC SETUPS</h2>
+
+<p>I don’t want to write another guide about how to set up react-native and Android studio. All the information about the installation steps is described <a href="https://facebook.github.io/react-native/docs/getting-started.html" title="React-Native Docs">here</a>. Just don’t forget to turn on <code>KVM</code> in bios, if your system supports it.</p>
+
+<p>Let’s create a new project with</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>react-native init project_name
+</span><span class='line'>react-native init gas_counter_map</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And <code>cd</code> into it:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cd gas_counter_map</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we have an empty project that we can build and test on our virtual mobile.
+First, we need to run a virtual device.</p>
+
+<p>If you haven’t copied the path to your emulator yet, you need to open an Android studio and run the virtual devise from there. As soon as you do it, you shall copy string that runs the emulator from console at the bottom of the Android-studio. Later you can use this copied command to run your device.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/home/YOUR USER NAME/Android/Sdk/tools/emulator -netdelay none -netspeed full -avd Xperia</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then, if you haven’t launched React Native yet, let’s do it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>react-native start</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And finally, we need to build our application’s code.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>react-native run-android</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If everything is OK, you should see an Android screen with the initial text on it.
+Let’s modify our code now.</p>
+
+<h2>CONFIGURING AND USING REACT-NATIVE-MAPS</h2>
+
+<p>Before taking the next steps, I suggest you to initialize a git repository and commit your code.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git init
+</span><span class='line'>git add .
+</span><span class='line'>git commit -m “Initial commit”</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It will save your progress and later you will be able to undo your changes at any time.
+I use <a href="https://github.com/lelandrichardson/react-native-maps/">react-native-maps</a> package because it has been suggested as a stable map package for android applications by react-native developers. The guide to set-up a package is here.
+Let’s add a component to our view.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="o">&lt;</span><span class="nx">MapView</span>  <span class="o">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And let’s add some style to it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="o">&lt;</span><span class="nx">MapView</span>
+</span><span class='line'>  <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">styles</span><span class="p">.</span><span class="nx">map</span><span class="p">}</span>
+</span><span class='line'><span class="o">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And in styles section of <code>index.android.js</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='css'><span class='line'><span class="nt">map</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">height</span><span class="o">:</span> <span class="m">150</span><span class="o">,</span>
+</span><span class='line'>  <span class="n">alignSelf</span><span class="o">:</span> <span class="s1">&#39;stretch&#39;</span><span class="o">,</span>
+</span><span class='line'><span class="p">}</span><span class="o">,</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>LET’S TRY IT!</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>react-native run-android</span></code></pre></td></tr></table></div></figure>
+
+
+<p>At this step we should see a working map on our virtual device’s screen.</p>
+
+<p><img class="center" src="http://akovtunov.github.io/images/react_maps/Screenshot_20160613-155504-576x1024.png" width="300"></p>
+
+<p>If at this stage you see a black grey space with “Google” label, than you’ve missed some Google key configurations.
+Now you may commit your changes.</p>
+
+<h2>GETTING CURRENT USER’S LOCATION</h2>
+
+<p>At first, we need to request a permission in <code>AndroidManifest.xml</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;uses-permission</span> <span class="na">android:name=</span><span class="s">&quot;android.permission.ACCESS_FINE_LOCATION&quot;</span> <span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let’s define our variables in <code>index.android.js</code> under a class definition.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">constructor</span><span class="p">(</span><span class="nx">props</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>   <span class="kr">super</span><span class="p">(</span><span class="nx">props</span><span class="p">);</span>
+</span><span class='line'>   <span class="k">this</span><span class="p">.</span><span class="nx">state</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>     <span class="nx">initialCoords</span><span class="o">:</span> <span class="s1">&#39;unknown&#39;</span><span class="p">,</span> <span class="c1">//&lt;- Our coords</span>
+</span><span class='line'>     <span class="nx">gotGpsData</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+</span><span class='line'>   <span class="p">};</span>
+</span><span class='line'> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>counstructor()</code> initializes the state with our given variables and their values.
+For our GPS data we need to use a <code>navigator.getCurrentPosition</code> and <code>navigator.watchCurrentPosition</code> methods</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">getGpsData</span><span class="p">(){</span>
+</span><span class='line'>   <span class="nx">navigator</span><span class="p">.</span><span class="nx">geolocation</span><span class="p">.</span><span class="nx">getCurrentPosition</span><span class="p">(</span>
+</span><span class='line'>     <span class="p">(</span><span class="nx">position</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>       <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span><span class="nx">initialCoords</span><span class="o">:</span> <span class="nx">position</span><span class="p">.</span><span class="nx">coords</span><span class="p">});</span>
+</span><span class='line'>       <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span><span class="nx">gotGpsData</span><span class="o">:</span> <span class="kc">true</span><span class="p">});</span>
+</span><span class='line'>     <span class="p">},</span>
+</span><span class='line'>     <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">alert</span><span class="p">(</span><span class="nx">error</span><span class="p">),</span>
+</span><span class='line'>     <span class="p">{</span><span class="nx">enableHighAccuracy</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">timeout</span><span class="o">:</span> <span class="mi">20000</span><span class="p">,</span> <span class="nx">maximumAge</span><span class="o">:</span> <span class="mi">1000</span><span class="p">}</span>
+</span><span class='line'>   <span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="nx">navigator</span><span class="p">.</span><span class="nx">geolocation</span><span class="p">.</span><span class="nx">watchPosition</span><span class="p">(</span>
+</span><span class='line'>     <span class="p">(</span><span class="nx">position</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>       <span class="kd">var</span> <span class="nx">lastPosition</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">position</span><span class="p">);</span>
+</span><span class='line'>       <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span><span class="nx">initialCoords</span><span class="o">:</span> <span class="nx">position</span><span class="p">.</span><span class="nx">coords</span><span class="p">});</span>
+</span><span class='line'>       <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span><span class="nx">gotGpsData</span><span class="o">:</span> <span class="kc">true</span><span class="p">});</span>
+</span><span class='line'>       <span class="k">this</span><span class="p">.</span><span class="nx">render</span><span class="p">();</span>
+</span><span class='line'>     <span class="p">},</span>
+</span><span class='line'>     <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{}</span>
+</span><span class='line'>   <span class="p">);</span>
+</span><span class='line'> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>First, we are getting our user’s location, and then we are creating watcher for the changes of his location. If a user has changed his location, we are rendering view again with an updated map. If there were no errors, we are setting our <code>gotGpsData</code> boolean to true.
+Let’s update our <code>render()</code> action with the new opportunities!</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">render</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>   <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">gotGpsData</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>     <span class="k">this</span><span class="p">.</span><span class="nx">getGpsData</span><span class="p">();</span>
+</span><span class='line'>     <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">renderLoadingView</span><span class="p">();</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>   <span class="k">return</span> <span class="p">(</span>
+</span><span class='line'>     <span class="o">&lt;</span><span class="nx">View</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">styles</span><span class="p">.</span><span class="nx">container</span><span class="p">}</span><span class="o">&gt;</span>
+</span><span class='line'>       <span class="o">&lt;</span><span class="nx">MapView</span>
+</span><span class='line'>         <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">styles</span><span class="p">.</span><span class="nx">map</span><span class="p">}</span>
+</span><span class='line'>         <span class="nx">region</span><span class="o">=</span><span class="p">{</span> <span class="p">{</span>
+</span><span class='line'>           <span class="nx">longitude</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">initialCoords</span><span class="p">.</span><span class="nx">longitude</span><span class="p">,</span>
+</span><span class='line'>           <span class="nx">latitude</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">initialCoords</span><span class="p">.</span><span class="nx">latitude</span><span class="p">,</span>
+</span><span class='line'>           <span class="nx">latitudeDelta</span><span class="o">:</span> <span class="mf">0.5</span><span class="p">,</span>
+</span><span class='line'>           <span class="nx">longitudeDelta</span><span class="o">:</span> <span class="mf">0.5</span><span class="p">,</span>
+</span><span class='line'>         <span class="p">}}</span>
+</span><span class='line'>       <span class="o">/&gt;</span>
+</span><span class='line'>       <span class="o">&lt;</span><span class="nx">Text</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">styles</span><span class="p">.</span><span class="nx">instructions</span><span class="p">}</span><span class="o">&gt;</span>
+</span><span class='line'>         <span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">initialCoords</span><span class="p">.</span><span class="nx">latitude</span><span class="p">}</span>
+</span><span class='line'>       <span class="o">&lt;</span><span class="err">/Text&gt;</span>
+</span><span class='line'>     <span class="o">&lt;</span><span class="err">/View&gt;</span>
+</span><span class='line'>   <span class="p">);</span>
+</span><span class='line'> <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What are we doing in this part of the code?</p>
+
+<p>If the user hasn’t given an access to his GPS coords or coords are not yet received, we are trying to get them again and calling <code>renderLoadingView</code>. We will talk about it later.
+If we have got user’s coordinates, we are creating a map widget with user’s location.
+Under the map we will see user’s <code>initialLatitude</code>, so we will be able to check our watchers and other code.
+<code>latitudeDelta</code> (the vertical distance represented by the region), and <code>longitudeDelta</code> (the horizontal distance represented by the region) can be set at 0.001 or as per your need. The larger number is – the bigger view distance from the place.
+What about <code>renderLoadingView</code>?
+Let’s update our boring view a bit and add <code>ProgressBarAndroid</code> to the <code>import{}</code> section.
+Now we can write a nice “loader” that the user will see until we receive any coordinates.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">renderLoadingView</span><span class="p">(){</span>
+</span><span class='line'>   <span class="k">return</span> <span class="p">(</span>
+</span><span class='line'>     <span class="o">&lt;</span><span class="nx">View</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">styles</span><span class="p">.</span><span class="nx">container</span><span class="p">}</span><span class="o">&gt;</span>
+</span><span class='line'>       <span class="o">&lt;</span><span class="nx">ProgressBarAndroid</span> <span class="o">/&gt;</span>
+</span><span class='line'>       <span class="o">&lt;</span><span class="nx">Text</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">styles</span><span class="p">.</span><span class="nx">instructions</span><span class="p">}</span><span class="o">&gt;</span>
+</span><span class='line'>         <span class="nx">Receiving</span> <span class="nx">GPS</span> <span class="nx">information</span><span class="p">...</span>
+</span><span class='line'>       <span class="o">&lt;</span><span class="err">/Text&gt;</span>
+</span><span class='line'>     <span class="o">&lt;</span><span class="err">/View&gt;</span>
+</span><span class='line'>   <span class="p">);</span>
+</span><span class='line'> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img class="center" src="http://akovtunov.github.io/images/react_maps/Screenshot_20160609-151657-576x1024.png" width="300"></p>
+
+<p>Now you may want to commit your changes.</p>
+
+<h2>INPUTS FOR PRICES AND MILEAGE</h2>
+
+<p>So, we are writing an application about prices, mileage and gas consumption, right? Then we need inputs for these data.
+At first we need to add a <code>TextInput</code> component to the <code>import{}</code> section of our application.
+To create a basic input we can use a code like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="o">&lt;</span><span class="nx">TextInput</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span> <span class="p">{</span><span class="nx">height</span><span class="o">:</span> <span class="mi">40</span><span class="p">,</span> <span class="nx">borderColor</span><span class="o">:</span> <span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="nx">borderWidth</span><span class="o">:</span> <span class="mi">1</span><span class="p">}}</span>  <span class="o">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But how will we assign this data to a variable?
+Let’s add some new variables to our constructor</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">constructor</span><span class="p">(</span><span class="nx">props</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>   <span class="kr">super</span><span class="p">(</span><span class="nx">props</span><span class="p">);</span>
+</span><span class='line'>   <span class="k">this</span><span class="p">.</span><span class="nx">state</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>     <span class="nx">initialCoords</span><span class="o">:</span> <span class="s1">&#39;unknown&#39;</span><span class="p">,</span>
+</span><span class='line'>     <span class="nx">gotGpsData</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+</span><span class='line'>     <span class="nx">spentMoney</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span> <span class="c1">// &lt;- NEW</span>
+</span><span class='line'>     <span class="nx">filledLiters</span><span class="o">:</span><span class="mi">0</span><span class="p">,</span> <span class="c1">// &lt;- NEW</span>
+</span><span class='line'>     <span class="nx">droveMileage</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span> <span class="c1">// &lt;- NEW</span>
+</span><span class='line'>     <span class="nx">gotCoords</span><span class="o">:</span> <span class="s1">&#39;unknown&#39;</span><span class="p">,</span>
+</span><span class='line'>   <span class="p">};</span>
+</span><span class='line'> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And a callback on the input field change.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="o">&lt;</span><span class="nx">TextInput</span>
+</span><span class='line'>  <span class="nx">style</span><span class="o">=</span><span class="p">{</span> <span class="p">{</span><span class="nx">height</span><span class="o">:</span> <span class="mi">40</span><span class="p">,</span> <span class="nx">borderColor</span><span class="o">:</span> <span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="nx">borderWidth</span><span class="o">:</span> <span class="mi">1</span><span class="p">}}</span>
+</span><span class='line'>  <span class="nx">onChangeText</span><span class="o">=</span><span class="p">{(</span><span class="nx">spentMoney</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span><span class="nx">spentMoney</span><span class="p">})}</span>
+</span><span class='line'>  <span class="nx">value</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">text</span><span class="p">}</span>
+</span><span class='line'><span class="o">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>At each change of the input, we will update our local variable and use it in our input. Good? Not yet!</p>
+
+<p><img class="center" src="http://akovtunov.github.io/images/react_maps/Screenshot_20160701-1636212-576x1024.png" width="300"></p>
+
+<p>All our data are digital. For a better UI we can update our inputs, so that they show a numeric keyboard on each click by setting a <code>keyboardType</code> property:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="o">&lt;</span><span class="nx">TextInput</span>
+</span><span class='line'>  <span class="nx">style</span><span class="o">=</span><span class="p">{</span> <span class="p">{</span><span class="nx">height</span><span class="o">:</span> <span class="mi">40</span><span class="p">,</span> <span class="nx">borderColor</span><span class="o">:</span> <span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="nx">borderWidth</span><span class="o">:</span> <span class="mi">1</span><span class="p">}}</span>
+</span><span class='line'>  <span class="nx">onChangeText</span><span class="o">=</span><span class="p">{(</span><span class="nx">spentMoney</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span><span class="nx">spentMoney</span><span class="p">})}</span>
+</span><span class='line'>  <span class="nx">value</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">text</span><span class="p">}</span>
+</span><span class='line'>  <span class="nx">keyboardType</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;numeric&#39;</span><span class="p">}</span>
+</span><span class='line'><span class="o">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let’s update our view with other inputs and captions.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">render</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">gotGpsData</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">this</span><span class="p">.</span><span class="nx">getGpsData</span><span class="p">();</span>
+</span><span class='line'>      <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">renderLoadingView</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="p">(</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="nx">View</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">styles</span><span class="p">.</span><span class="nx">container</span><span class="p">}</span><span class="o">&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">MapView</span>
+</span><span class='line'>          <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">styles</span><span class="p">.</span><span class="nx">map</span><span class="p">}</span>
+</span><span class='line'>          <span class="nx">region</span><span class="o">=</span><span class="p">{</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nx">longitude</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">initialCoords</span><span class="p">.</span><span class="nx">longitude</span><span class="p">,</span>
+</span><span class='line'>            <span class="nx">latitude</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">initialCoords</span><span class="p">.</span><span class="nx">latitude</span><span class="p">,</span>
+</span><span class='line'>            <span class="nx">latitudeDelta</span><span class="o">:</span> <span class="mf">0.01</span><span class="p">,</span>
+</span><span class='line'>            <span class="nx">longitudeDelta</span><span class="o">:</span> <span class="mf">0.01</span><span class="p">,</span>
+</span><span class='line'>          <span class="p">}}</span>
+</span><span class='line'>        <span class="o">/&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">Text</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">styles</span><span class="p">.</span><span class="nx">instructions</span><span class="p">}</span><span class="o">&gt;</span>
+</span><span class='line'>          <span class="nx">Spent</span> <span class="nx">money</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="err">/Text&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">TextInput</span>
+</span><span class='line'>          <span class="nx">style</span><span class="o">=</span><span class="p">{</span> <span class="p">{</span><span class="nx">height</span><span class="o">:</span> <span class="mi">40</span><span class="p">,</span> <span class="nx">borderColor</span><span class="o">:</span> <span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="nx">borderWidth</span><span class="o">:</span> <span class="mi">1</span><span class="p">}}</span>
+</span><span class='line'>          <span class="nx">onChangeText</span><span class="o">=</span><span class="p">{(</span><span class="nx">spentMoney</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span><span class="nx">spentMoney</span><span class="p">})}</span>
+</span><span class='line'>          <span class="nx">value</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">text</span><span class="p">}</span>
+</span><span class='line'>          <span class="nx">keyboardType</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;numeric&#39;</span><span class="p">}</span>
+</span><span class='line'>        <span class="o">/&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">Text</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">styles</span><span class="p">.</span><span class="nx">instructions</span><span class="p">}</span><span class="o">&gt;</span>
+</span><span class='line'>          <span class="nx">Filled</span><span class="o">-</span><span class="k">in</span> <span class="nx">liters</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="err">/Text&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">TextInput</span>
+</span><span class='line'>          <span class="nx">style</span><span class="o">=</span><span class="p">{</span> <span class="p">{</span><span class="nx">height</span><span class="o">:</span> <span class="mi">40</span><span class="p">,</span> <span class="nx">borderColor</span><span class="o">:</span> <span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="nx">borderWidth</span><span class="o">:</span> <span class="mi">1</span><span class="p">}}</span>
+</span><span class='line'>          <span class="nx">onChangeText</span><span class="o">=</span><span class="p">{(</span><span class="nx">filledLiters</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span><span class="nx">filledLiters</span><span class="p">})}</span>
+</span><span class='line'>          <span class="nx">value</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">text</span><span class="p">}</span>
+</span><span class='line'>          <span class="nx">keyboardType</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;numeric&#39;</span><span class="p">}</span>
+</span><span class='line'>        <span class="o">/&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">Text</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">styles</span><span class="p">.</span><span class="nx">instructions</span><span class="p">}</span><span class="o">&gt;</span>
+</span><span class='line'>          <span class="nx">Mileage</span> <span class="nx">from</span> <span class="nx">the</span> <span class="nx">last</span> <span class="nx">point</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="err">/Text&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">TextInput</span>
+</span><span class='line'>          <span class="nx">style</span><span class="o">=</span><span class="p">{</span> <span class="p">{</span><span class="nx">height</span><span class="o">:</span> <span class="mi">40</span><span class="p">,</span> <span class="nx">borderColor</span><span class="o">:</span> <span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="nx">borderWidth</span><span class="o">:</span> <span class="mi">1</span><span class="p">}}</span>
+</span><span class='line'>          <span class="nx">onChangeText</span><span class="o">=</span><span class="p">{(</span><span class="nx">droveMileage</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span><span class="nx">droveMileage</span><span class="p">})}</span>
+</span><span class='line'>          <span class="nx">value</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">text</span><span class="p">}</span>
+</span><span class='line'>          <span class="nx">keyboardType</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;numeric&#39;</span><span class="p">}</span>
+</span><span class='line'>        <span class="o">/&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">Text</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">styles</span><span class="p">.</span><span class="nx">instructions</span><span class="p">}</span><span class="o">&gt;</span>
+</span><span class='line'>          <span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">initialCoords</span><span class="p">.</span><span class="nx">latitude</span><span class="p">}</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="err">/Text&gt;</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="err">/View&gt;</span>
+</span><span class='line'>    <span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img class="center" src="http://akovtunov.github.io/images/react_maps/Screenshot_20160701-163623-1-576x1024.png" width="300"></p>
+
+<p>Now we can modify our map.
+You may want to commit your changes and test them, so we can proceed to the next step.</p>
+
+<h2>ADDING PRICE MARKERS</h2>
+
+<p>Google Maps have a great tool called “markers” to point out location. I suggest to use this tool to point out current user’s place. <code>react-native-maps</code> have a “price marker” with which we will show our user how much he has spent and where.
+First, we need to download a <code>PriceMarker</code> sample in our project’s folder, so that we could use it in our map.</p>
+
+<p><a href="https://github.com/DiatomEnterprises/react-native-maps/blob/master/example/examples/PriceMarker.js">https://github.com/DiatomEnterprises/react-native-maps/blob/master/example/examples/PriceMarker.js</a></p>
+
+<p>Next – we need to add it in our main project</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kr">import</span> <span class="nx">PriceMarker</span> <span class="nx">from</span> <span class="s1">&#39;./PriceMarker&#39;</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then we can add this marker to our map and show the value of Spent Money variable. In order to do this you need to put this code inside <code>&lt;MapView style=”…”..&gt;</code> </MapView> tag:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="o">&lt;</span><span class="nx">MapView</span> <span class="nx">style</span><span class="o">=</span><span class="err">”</span><span class="p">...</span><span class="err">”</span><span class="p">...</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="o">&lt;</span><span class="nx">MapView</span><span class="p">.</span><span class="nx">Marker</span>
+</span><span class='line'>      <span class="nx">coordinate</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">initialCoords</span><span class="p">}</span>
+</span><span class='line'>      <span class="nx">draggable</span>
+</span><span class='line'>   <span class="o">&gt;</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="nx">PriceMarker</span> <span class="nx">amount</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">spentMoney</span><span class="p">}</span> <span class="o">/&gt;</span>
+</span><span class='line'>   <span class="o">&lt;</span><span class="err">/MapView.Marker&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/MapView&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After building your project you should see something like this:
+<img class="center" src="http://akovtunov.github.io/images/react_maps/Screenshot_20160701-163403-576x1024.png" width="300"></p>
+
+<p>Now we are ready to save our data.
+You may want to commit your changes and test them, so we can go to the next step.</p>
+
+<h2>SAVING CURRENT DATA</h2>
+
+<p>To save our current data, we will use <code>AsyncStorage</code>. It’s a simple, asynchronous, persistent, key-value storage system that is global to the app.
+At first we need to add <code>AsycStorage</code> to the import section</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kr">import</span> <span class="p">{</span>
+</span><span class='line'> <span class="nx">AsyncStorage</span><span class="p">,</span>
+</span><span class='line'><span class="err">…</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Next – let’s update our state. We need a variable that will save records count from the database to work with IDs. Also, we need a <code>lastRecords</code> variable that will contain our previous records. And finally, we need a method that will synchronize our storage with the application on startup.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">constructor</span><span class="p">(</span><span class="nx">props</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kr">super</span><span class="p">(</span><span class="nx">props</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">state</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="nx">recordCount</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">lastRecords</span><span class="o">:</span> <span class="p">[],</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">syncStorage</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>syncStorage()</code> method will be called on startup and will synchronize the current records and their count with the state.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">syncStorage</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">AsyncStorage</span><span class="p">.</span><span class="nx">getAllKeys</span><span class="p">((</span><span class="nx">err</span><span class="p">,</span> <span class="nx">keys</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">AsyncStorage</span><span class="p">.</span><span class="nx">multiGet</span><span class="p">(</span><span class="nx">keys</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">stores</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span><span class="nx">recordCount</span><span class="o">:</span> <span class="nx">stores</span><span class="p">.</span><span class="nx">length</span><span class="p">});</span>
+</span><span class='line'>      <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span><span class="nx">lastRecords</span><span class="o">:</span> <span class="nx">stores</span><span class="p">});</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In this part of code, at first, we are getting all of the keys that <code>AsyncStorage</code> contains.
+Then, we are getting all records by these keys.
+Next, we need to create a method to save our data in a storage</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">saveData</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kd">var</span> <span class="nx">saveData</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>    <span class="s2">&quot;longitude&quot;</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">initialCoords</span><span class="p">.</span><span class="nx">longitude</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;latitude&quot;</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">initialCoords</span><span class="p">.</span><span class="nx">latitude</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;spentMoney&quot;</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">spentMoney</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;filledLiters&quot;</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">filledLiters</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;droveMileage&quot;</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">filledLiters</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;timestamp&quot;</span><span class="o">:</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">().</span><span class="nx">getTime</span><span class="p">()</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">),</span>
+</span><span class='line'>  <span class="p">};</span>
+</span><span class='line'>  <span class="nx">AsyncStorage</span><span class="p">.</span><span class="nx">setItem</span><span class="p">(</span><span class="s2">&quot;record_&quot;</span><span class="o">+</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">record_count</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">saveData</span><span class="p">)).</span><span class="nx">then</span><span class="p">(</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span><span class="nx">message</span><span class="o">:</span> <span class="s2">&quot;Saved record #&quot;</span><span class="o">+</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">record_count</span><span class="o">+</span><span class="mi">1</span><span class="p">})</span>
+</span><span class='line'>  <span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">sync_storage</span><span class="p">()).</span><span class="nx">done</span><span class="p">(</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">render</span><span class="p">()</span>
+</span><span class='line'>  <span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>AsyncStorage.setItem()</code> Sets value for key and calls callback on completion
+I’ve added a <code>timestamp</code> in milliseconds, thus, we can get an information about when we have done this record.
+Now, let’s update our views:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="o">&lt;</span><span class="nx">View</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">styles</span><span class="p">.</span><span class="nx">container</span><span class="p">}</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">MapView</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="o">&lt;</span><span class="nx">MapView</span><span class="p">.</span><span class="nx">Marker</span> <span class="p">...</span>    <span class="o">&gt;</span> <span class="p">...</span>  <span class="o">&lt;</span><span class="err">/MapView.Marker&gt;</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">lastRecords</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">item</span><span class="p">,</span> <span class="nx">index</span><span class="p">){</span>
+</span><span class='line'>        <span class="nx">item</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">item</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</span><span class='line'>        <span class="nx">coords</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">latitude</span><span class="o">:</span> <span class="nx">item</span><span class="p">.</span><span class="nx">latitude</span><span class="p">,</span> <span class="nx">longitude</span><span class="o">:</span> <span class="nx">item</span><span class="p">.</span><span class="nx">longitude</span> <span class="p">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="p">(</span>
+</span><span class='line'>          <span class="o">&lt;</span><span class="nx">MapView</span><span class="p">.</span><span class="nx">Marker</span>
+</span><span class='line'>            <span class="nx">coordinate</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">coords</span> <span class="p">}</span>
+</span><span class='line'>            <span class="nx">draggable</span>
+</span><span class='line'>          <span class="o">&gt;</span>
+</span><span class='line'>            <span class="o">&lt;</span><span class="nx">PriceMarker</span> <span class="nx">amount</span><span class="o">=</span><span class="p">{</span><span class="nx">item</span><span class="p">.</span><span class="nx">spentMoney</span><span class="p">}</span> <span class="o">/&gt;</span>
+</span><span class='line'>          <span class="o">&lt;</span><span class="err">/MapView.Marker&gt;</span>
+</span><span class='line'>        <span class="p">)</span>
+</span><span class='line'>      <span class="p">}.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">))</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="err">/MapView&gt;</span>
+</span><span class='line'>  <span class="err">…</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">TouchableHighlight</span>
+</span><span class='line'>   <span class="nx">activeOpacity</span><span class="o">=</span><span class="p">{</span><span class="mf">0.6</span><span class="p">}</span>
+</span><span class='line'>   <span class="nx">underlayColor</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;white&#39;</span><span class="p">}</span>
+</span><span class='line'>   <span class="nx">onPress</span><span class="o">=</span><span class="p">{()</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">saveData</span><span class="p">()}</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="o">&lt;</span><span class="nx">Text</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">styles</span><span class="p">.</span><span class="nx">button</span><span class="p">}</span><span class="o">&gt;</span><span class="nx">Save</span><span class="o">&lt;</span><span class="err">/Text&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="err">/TouchableHighlight&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">Text</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">styles</span><span class="p">.</span><span class="nx">instructions</span><span class="p">}</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">message</span><span class="p">}</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="err">/Text&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">Text</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">styles</span><span class="p">.</span><span class="nx">instructions</span><span class="p">}</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="nx">Your</span> <span class="nx">fuel</span> <span class="nx">consumption</span> <span class="nx">on</span> <span class="k">this</span> <span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">droveMileage</span><span class="p">}</span> <span class="nx">km</span> <span class="nx">is</span> <span class="p">{</span><span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">filledLiters</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">/</span> <span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">droveMileage</span> <span class="o">*</span><span class="mi">100</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span><span class="p">}</span> <span class="nx">l</span><span class="o">/</span><span class="mi">100</span><span class="nx">km</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="err">/Text&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/View&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We have added a cycle for generating markers inside the <code>&lt;MapView&gt;</code> tag. This part of code maps all previous records and creates markers on map from them.
+<code>&lt;TouchableHighlight&gt;</code>  is a wrapper for making views respond properly to touch.  The main part is <code>onPress</code> event that calls <code>this.saveData()</code> method.
+<code>this.state.message</code> returns a message about successful save.
+Finally, we calculate fuel consumption basing on the mileage driven. We assume that the previous time user filled up his car and check how much fuel he has spent until now. Then we take the driven mileage and calculate his fuel consumption.
+I think that my drive to Riga could look like this:</p>
+
+<p><img class="center" src="http://akovtunov.github.io/images/react_maps/Screenshot_20160701-163737-576x1024.png" width="300">
+<img class="center" src="http://akovtunov.github.io/images/react_maps/Screenshot_20160701-163833-576x1024.png" width="300">
+<img class="center" src="http://akovtunov.github.io/images/react_maps/Screenshot_20160701-164036-576x1024.png" width="300"></p>
+
+<p>That’s it! Finally, don’t forget to commit your changes.
+You can manipulate with the saved data in any way: calculate all user’s expenses, mileage driven, average fuel consumption or create a swarm-like application.
+Link to the GitHub <a href="https://github.com/AKovtunov/gas_counter_map">source</a>
+Just for case if you are not sure what is difference between <a href="http://www.diatomenterprises.com/technologies/reactjs-specifics/">ReactJS</a> and React Native.
+React Native is a mobile framework that compiles to native app components.
+It allows you to build native mobile applications (iOS, Android, and Windows) in JavaScript.
+<a href="http://www.diatomenterprises.com/technologies/reactjs-specifics/">ReactJS</a> is full JS library which is easy to use on your web.
+Both are open sourced by Facebook.</p>
+]]></content>
+  </entry>
   
 </feed>

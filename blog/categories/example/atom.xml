@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Example, | My Octopress Blog]]></title>
+  <link href="http://akovtunov.github.io/blog/categories/example/atom.xml" rel="self"/>
+  <link href="http://akovtunov.github.io/"/>
+  <updated>2017-04-23T02:22:39+02:00</updated>
+  <id>http://akovtunov.github.io/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[React Native in One Day: Android Application for Tracking Your Spends With Google Maps Support]]></title>
+    <link href="http://akovtunov.github.io/blog/2017/04/23/react-native-in-one-day-android-application-for-tracking-your-spends-with-google-maps-support/"/>
+    <updated>2017-04-23T00:32:26+02:00</updated>
+    <id>http://akovtunov.github.io/blog/2017/04/23/react-native-in-one-day-android-application-for-tracking-your-spends-with-google-maps-support</id>
+    <content type="html"><![CDATA[<p><img class="center" src="/images/react_maps/title_image.png"></p>
+
+<p>Usually I travel a lot by my car and make blog posts about it. And usually readers ask me about the mileage, gas consumption and other useful information. So I have decided to create a simple application, where I would be able to save all this information just in few clicks, without any registrations, advertisements and big tracking applications. I’ve never written any Android application and I wanted to take a look at the React library, so react-native was the best choice for me.</p>
+
+<h2>BASIC SETUPS</h2>
+
+<p>I don’t want to write another guide about how to set up react-native and Android studio. All the information about the installation steps is described <a href="https://facebook.github.io/react-native/docs/getting-started.html" title="React-Native Docs">here</a>. Just don’t forget to turn on <code>KVM</code> in bios, if your system supports it.</p>
+
+<p>Let’s create a new project with
+<code>plain
+react-native init project_name
+react-native init gas_counter_map
+</code></p>
+
+<p>And <code>cd</code> into it:</p>
+
+<pre><code class="plain">cd gas_counter_map
+</code></pre>
+
+<p>Now we have an empty project that we can build and test on our virtual mobile.
+First, we need to run a virtual device.</p>
+
+<p>If you haven’t copied the path to your emulator yet, you need to open an Android studio and run the virtual devise from there. As soon as you do it, you shall copy string that runs the emulator from console at the bottom of the Android-studio. Later you can use this copied command to run your device.
+<code>plain
+/home/YOUR USER NAME/Android/Sdk/tools/emulator -netdelay none -netspeed full -avd Xperia
+</code>
+Then, if you haven’t launched React Native yet, let’s do it.
+<code>plain
+react-native start
+</code>
+And finally, we need to build our application’s code.
+<code>plain
+react-native run-android
+</code></p>
+
+<p>If everything is OK, you should see an Android screen with the initial text on it.
+Let’s modify our code now.</p>
+
+<h2>CONFIGURING AND USING REACT-NATIVE-MAPS</h2>
+
+<p>Before taking the next steps, I suggest you to initialize a git repository and commit your code.
+<code>plain
+git init
+git add .
+git commit -m “Initial commit”
+</code>
+It will save your progress and later you will be able to undo your changes at any time.
+I use <a href="https://github.com/lelandrichardson/react-native-maps/">react-native-maps</a> package because it has been suggested as a stable map package for android applications by react-native developers. The guide to set-up a package is here.
+Let’s add a component to our view.</p>
+
+<pre><code class="js">&lt;MapView  /&gt;
+</code></pre>
+
+<p>And let’s add some style to it.</p>
+
+<pre><code class="js">&lt;MapView
+  style={styles.map}
+/&gt;
+</code></pre>
+
+<p>And in styles section of <code>index.android.js</code></p>
+
+<pre><code class="css">map: {
+  height: 150,
+  alignSelf: 'stretch',
+},
+</code></pre>
+
+<h2>LET’S TRY IT!</h2>
+
+<pre><code class="plain">react-native run-android
+</code></pre>
+
+<p>At this step we should see a working map on our virtual device’s screen.</p>
+
+<p><img class="center" src="/images/react_maps/Screenshot_20160613-155504-576x1024.png" width="300"></p>
+
+<p>If at this stage you see a black grey space with “Google” label, than you’ve missed some Google key configurations.
+Now you may commit your changes.</p>
+
+<h2>GETTING CURRENT USER’S LOCATION</h2>
+
+<p>At first, we need to request a permission in <code>AndroidManifest.xml</code></p>
+
+<pre><code class="xml">&lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /&gt;
+</code></pre>
+
+<p>Let’s define our variables in <code>index.android.js</code> under a class definition.</p>
+
+<pre><code class="js">constructor(props) {
+   super(props);
+   this.state = {
+     initialCoords: 'unknown', //&lt;- Our coords
+     gotGpsData: false,
+   };
+ }
+</code></pre>
+
+<p><code>counstructor()</code> initializes the state with our given variables and their values.
+For our GPS data we need to use a <code>navigator.getCurrentPosition</code> and <code>navigator.watchCurrentPosition</code> methods
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">getGpsData</span><span class="p">(){</span>
+</span><span class='line'>   <span class="nx">navigator</span><span class="p">.</span><span class="nx">geolocation</span><span class="p">.</span><span class="nx">getCurrentPosition</span><span class="p">(</span>
+</span><span class='line'>     <span class="p">(</span><span class="nx">position</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>       <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span><span class="nx">initialCoords</span><span class="o">:</span> <span class="nx">position</span><span class="p">.</span><span class="nx">coords</span><span class="p">});</span>
+</span><span class='line'>       <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span><span class="nx">gotGpsData</span><span class="o">:</span> <span class="kc">true</span><span class="p">});</span>
+</span><span class='line'>     <span class="p">},</span>
+</span><span class='line'>     <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">alert</span><span class="p">(</span><span class="nx">error</span><span class="p">),</span>
+</span><span class='line'>     <span class="p">{</span><span class="nx">enableHighAccuracy</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">timeout</span><span class="o">:</span> <span class="mi">20000</span><span class="p">,</span> <span class="nx">maximumAge</span><span class="o">:</span> <span class="mi">1000</span><span class="p">}</span>
+</span><span class='line'>   <span class="p">);</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>   <span class="nx">navigator</span><span class="p">.</span><span class="nx">geolocation</span><span class="p">.</span><span class="nx">watchPosition</span><span class="p">(</span>
+</span><span class='line'>     <span class="p">(</span><span class="nx">position</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>       <span class="kd">var</span> <span class="nx">lastPosition</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">position</span><span class="p">);</span>
+</span><span class='line'>       <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span><span class="nx">initialCoords</span><span class="o">:</span> <span class="nx">position</span><span class="p">.</span><span class="nx">coords</span><span class="p">});</span>
+</span><span class='line'>       <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span><span class="nx">gotGpsData</span><span class="o">:</span> <span class="kc">true</span><span class="p">});</span>
+</span><span class='line'>       <span class="k">this</span><span class="p">.</span><span class="nx">render</span><span class="p">();</span>
+</span><span class='line'>     <span class="p">},</span>
+</span><span class='line'>     <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{}</span>
+</span><span class='line'>   <span class="p">);</span>
+</span><span class='line'> <span class="p">}</span>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">code</span><span class="o">&gt;</span>
+</span><span class='line'><span class="nx">First</span><span class="p">,</span> <span class="nx">we</span> <span class="nx">are</span> <span class="nx">getting</span> <span class="nx">our</span> <span class="nx">user</span><span class="err">’</span><span class="nx">s</span> <span class="nx">location</span><span class="p">,</span> <span class="nx">and</span> <span class="nx">then</span> <span class="nx">we</span> <span class="nx">are</span> <span class="nx">creating</span> <span class="nx">watcher</span> <span class="k">for</span> <span class="nx">the</span> <span class="nx">changes</span> <span class="nx">of</span> <span class="nx">his</span> <span class="nx">location</span><span class="p">.</span> <span class="nx">If</span> <span class="nx">a</span> <span class="nx">user</span> <span class="nx">has</span> <span class="nx">changed</span> <span class="nx">his</span> <span class="nx">location</span><span class="p">,</span> <span class="nx">we</span> <span class="nx">are</span> <span class="nx">rendering</span> <span class="nx">view</span> <span class="nx">again</span> <span class="kd">with</span> <span class="nx">an</span> <span class="nx">updated</span> <span class="nx">map</span><span class="p">.</span> <span class="nx">If</span> <span class="nx">there</span> <span class="nx">were</span> <span class="nx">no</span> <span class="nx">errors</span><span class="p">,</span> <span class="nx">we</span> <span class="nx">are</span> <span class="nx">setting</span> <span class="nx">our</span> <span class="err">`</span><span class="nx">gotGpsData</span><span class="err">`</span> <span class="kr">boolean</span> <span class="nx">to</span> <span class="kc">true</span><span class="p">.</span>
+</span><span class='line'><span class="nx">Let</span><span class="err">’</span><span class="nx">s</span> <span class="nx">update</span> <span class="nx">our</span> <span class="err">`</span><span class="nx">render</span><span class="p">()</span><span class="err">`</span> <span class="nx">action</span> <span class="kd">with</span> <span class="nx">the</span> <span class="k">new</span> <span class="nx">opportunities</span><span class="o">!</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt; js</span>
+</span><span class='line'><span class="nx">render</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>   <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">gotGpsData</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>     <span class="k">this</span><span class="p">.</span><span class="nx">getGpsData</span><span class="p">();</span>
+</span><span class='line'>     <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">renderLoadingView</span><span class="p">();</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>   <span class="k">return</span> <span class="p">(</span>
+</span><span class='line'>     <span class="o">&lt;</span><span class="nx">View</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">styles</span><span class="p">.</span><span class="nx">container</span><span class="p">}</span><span class="o">&gt;</span>
+</span><span class='line'>       <span class="o">&lt;</span><span class="nx">MapView</span>
+</span><span class='line'>         <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">styles</span><span class="p">.</span><span class="nx">map</span><span class="p">}</span>
+</span><span class='line'>         <span class="nx">region</span><span class="o">=</span><span class="p">{</span> <span class="p">{</span>
+</span><span class='line'>           <span class="nx">longitude</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">initialCoords</span><span class="p">.</span><span class="nx">longitude</span><span class="p">,</span>
+</span><span class='line'>           <span class="nx">latitude</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">initialCoords</span><span class="p">.</span><span class="nx">latitude</span><span class="p">,</span>
+</span><span class='line'>           <span class="nx">latitudeDelta</span><span class="o">:</span> <span class="mf">0.5</span><span class="p">,</span>
+</span><span class='line'>           <span class="nx">longitudeDelta</span><span class="o">:</span> <span class="mf">0.5</span><span class="p">,</span>
+</span><span class='line'>         <span class="p">}}</span>
+</span><span class='line'>       <span class="o">/&gt;</span>
+</span><span class='line'>       <span class="o">&lt;</span><span class="nx">Text</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">styles</span><span class="p">.</span><span class="nx">instructions</span><span class="p">}</span><span class="o">&gt;</span>
+</span><span class='line'>         <span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">initialCoords</span><span class="p">.</span><span class="nx">latitude</span><span class="p">}</span>
+</span><span class='line'>       <span class="o">&lt;</span><span class="err">/Text&gt;</span>
+</span><span class='line'>     <span class="o">&lt;</span><span class="err">/View&gt;</span>
+</span><span class='line'>   <span class="p">);</span>
+</span><span class='line'> <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>What are we doing in this part of the code?</p>
+
+<p>If the user hasn’t given an access to his GPS coords or coords are not yet received, we are trying to get them again and calling <code>renderLoadingView</code>. We will talk about it later.
+If we have got user’s coordinates, we are creating a map widget with user’s location.
+Under the map we will see user’s <code>initialLatitude</code>, so we will be able to check our watchers and other code.
+<code>latitudeDelta</code> (the vertical distance represented by the region), and <code>longitudeDelta</code> (the horizontal distance represented by the region) can be set at 0.001 or as per your need. The larger number is – the bigger view distance from the place.
+What about <code>renderLoadingView</code>?
+Let’s update our boring view a bit and add <code>ProgressBarAndroid</code> to the <code>import{}</code> section.
+Now we can write a nice “loader” that the user will see until we receive any coordinates.
+<code>js
+renderLoadingView(){
+   return (
+     &lt;View style={styles.container}&gt;
+       &lt;ProgressBarAndroid /&gt;
+       &lt;Text style={styles.instructions}&gt;
+         Receiving GPS information...
+       &lt;/Text&gt;
+     &lt;/View&gt;
+   );
+ }
+</code></p>
+
+<p><img class="center" src="/images/react_maps/Screenshot_20160609-151657-576x1024.png" width="300"></p>
+
+<p>Now you may want to commit your changes.</p>
+
+<h2>INPUTS FOR PRICES AND MILEAGE</h2>
+
+<p>So, we are writing an application about prices, mileage and gas consumption, right? Then we need inputs for these data.
+At first we need to add a <code>TextInput</code> component to the <code>import{}</code> section of our application.
+To create a basic input we can use a code like this:
+<code>js
+&lt;TextInput style={ {height: 40, borderColor: 'gray', borderWidth: 1}}  /&gt;
+</code>
+But how will we assign this data to a variable?
+Let’s add some new variables to our constructor
+<code>js
+constructor(props) {
+   super(props);
+   this.state = {
+     initialCoords: 'unknown',
+     gotGpsData: false,
+     spentMoney: 0, // &lt;- NEW
+     filledLiters:0, // &lt;- NEW
+     droveMileage: 0, // &lt;- NEW
+     gotCoords: 'unknown',
+   };
+ }
+</code>
+And a callback on the input field change.
+<code>js
+&lt;TextInput
+  style={ {height: 40, borderColor: 'gray', borderWidth: 1}}
+  onChangeText={(spentMoney) =&gt; this.setState({spentMoney})}
+  value={this.state.text}
+/&gt;
+</code>
+At each change of the input, we will update our local variable and use it in our input. Good? Not yet!</p>
+
+<p><img class="center" src="/images/react_maps/Screenshot_20160701-1636212-576x1024.png" width="300"></p>
+
+<p>All our data are digital. For a better UI we can update our inputs, so that they show a numeric keyboard on each click by setting a <code>keyboardType</code> property:
+<code>js
+&lt;TextInput
+  style={ {height: 40, borderColor: 'gray', borderWidth: 1}}
+  onChangeText={(spentMoney) =&gt; this.setState({spentMoney})}
+  value={this.state.text}
+  keyboardType={'numeric'}
+/&gt;
+</code>
+Let’s update our view with other inputs and captions.
+<code>js
+render() {
+    if (!this.state.gotGpsData) {
+      this.getGpsData();
+      return this.renderLoadingView();
+    }
+    return (
+      &lt;View style={styles.container}&gt;
+        &lt;MapView
+          style={styles.map}
+          region={ {
+            longitude: this.state.initialCoords.longitude,
+            latitude: this.state.initialCoords.latitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          }}
+        /&gt;
+        &lt;Text style={styles.instructions}&gt;
+          Spent money
+        &lt;/Text&gt;
+        &lt;TextInput
+          style={ {height: 40, borderColor: 'gray', borderWidth: 1}}
+          onChangeText={(spentMoney) =&gt; this.setState({spentMoney})}
+          value={this.state.text}
+          keyboardType={'numeric'}
+        /&gt;
+        &lt;Text style={styles.instructions}&gt;
+          Filled-in liters
+        &lt;/Text&gt;
+        &lt;TextInput
+          style={ {height: 40, borderColor: 'gray', borderWidth: 1}}
+          onChangeText={(filledLiters) =&gt; this.setState({filledLiters})}
+          value={this.state.text}
+          keyboardType={'numeric'}
+        /&gt;
+        &lt;Text style={styles.instructions}&gt;
+          Mileage from the last point
+        &lt;/Text&gt;
+        &lt;TextInput
+          style={ {height: 40, borderColor: 'gray', borderWidth: 1}}
+          onChangeText={(droveMileage) =&gt; this.setState({droveMileage})}
+          value={this.state.text}
+          keyboardType={'numeric'}
+        /&gt;
+        &lt;Text style={styles.instructions}&gt;
+          {this.state.initialCoords.latitude}
+        &lt;/Text&gt;
+      &lt;/View&gt;
+    );
+  }
+}
+</code></p>
+
+<p><img class="center" src="/images/react_maps/Screenshot_20160701-163623-1-576x1024.png" width="300"></p>
+
+<p>Now we can modify our map.
+You may want to commit your changes and test them, so we can proceed to the next step.</p>
+
+<h2>ADDING PRICE MARKERS</h2>
+
+<p>Google Maps have a great tool called “markers” to point out location. I suggest to use this tool to point out current user’s place. <code>react-native-maps</code> have a “price marker” with which we will show our user how much he has spent and where.
+First, we need to download a <code>PriceMarker</code> sample in our project’s folder, so that we could use it in our map.</p>
+
+<p><a href="https://github.com/DiatomEnterprises/react-native-maps/blob/master/example/examples/PriceMarker.js">https://github.com/DiatomEnterprises/react-native-maps/blob/master/example/examples/PriceMarker.js</a></p>
+
+<p>Next – we need to add it in our main project
+<code>js
+import PriceMarker from './PriceMarker';
+</code>
+Then we can add this marker to our map and show the value of Spent Money variable. In order to do this you need to put this code inside <code>&lt;MapView style=”…”..&gt;</code> </MapView> tag:
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="o">&lt;</span><span class="nx">MapView</span> <span class="nx">style</span><span class="o">=</span><span class="err">”</span><span class="p">...</span><span class="err">”</span><span class="p">...</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="o">&amp;</span><span class="nx">lt</span><span class="p">;</span><span class="nx">MapView</span><span class="p">.</span><span class="nx">Marker</span>
+</span><span class='line'>      <span class="nx">coordinate</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">initialCoords</span><span class="p">}</span>
+</span><span class='line'>      <span class="nx">draggable</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">blockquote</span><span class="o">&gt;&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span>  <span class="o">&amp;</span><span class="nx">lt</span><span class="p">;</span><span class="nx">PriceMarker</span> <span class="nx">amount</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">spentMoney</span><span class="p">}</span> <span class="o">/&amp;</span><span class="nx">gt</span><span class="p">;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>   <span class="o">&amp;</span><span class="nx">lt</span><span class="p">;</span><span class="err">/MapView.Marker&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/MapView&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+After building your project you should see something like this:
+<img class="center" src="/images/react_maps/Screenshot_20160701-163403-576x1024.png" width="300"></p></blockquote>
+
+<p>Now we are ready to save our data.
+You may want to commit your changes and test them, so we can go to the next step.</p>
+
+<h2>SAVING CURRENT DATA</h2>
+
+<p>To save our current data, we will use <code>AsyncStorage</code>. It’s a simple, asynchronous, persistent, key-value storage system that is global to the app.
+At first we need to add <code>AsycStorage</code> to the import section
+<code>js
+import {
+ AsyncStorage,
+…
+}
+</code>
+Next – let’s update our state. We need a variable that will save records count from the database to work with IDs. Also, we need a <code>lastRecords</code> variable that will contain our previous records. And finally, we need a method that will synchronize our storage with the application on startup.
+<code>js
+constructor(props) {
+  super(props);
+  this.state = {
+    ...
+    recordCount: 0,
+    lastRecords: [],
+    ...
+  }
+  this.syncStorage();
+}
+</code>
+<code>syncStorage()</code> method will be called on startup and will synchronize the current records and their count with the state.
+<code>js
+syncStorage() {
+  AsyncStorage.getAllKeys((err, keys) =&gt; {
+    AsyncStorage.multiGet(keys, (err, stores) =&gt; {
+      this.setState({recordCount: stores.length});
+      this.setState({lastRecords: stores});
+    });
+  });
+}
+</code>
+In this part of code, at first, we are getting all of the keys that <code>AsyncStorage</code> contains.
+Then, we are getting all records by these keys.
+Next, we need to create a method to save our data in a storage
+<code>js
+saveData() {
+  var saveData = {
+    "longitude": this.state.initialCoords.longitude,
+    "latitude": this.state.initialCoords.latitude,
+    "spentMoney": this.state.spentMoney,
+    "filledLiters": this.state.filledLiters,
+    "droveMileage": this.state.filledLiters,
+    "timestamp": Math.round(new Date().getTime() / 1000),
+  };
+  AsyncStorage.setItem("record_"+this.state.record_count+1, JSON.stringify(saveData)).then(
+    this.setState({message: "Saved record #"+this.state.record_count+1})
+  ).then(this.sync_storage()).done(
+    this.render()
+  );
+}
+</code>
+<code>AsyncStorage.setItem()</code> Sets value for key and calls callback on completion
+I’ve added a <code>timestamp</code> in milliseconds, thus, we can get an information about when we have done this record.
+Now, let’s update our views:
+<code>js
+&lt;View style={styles.container}&gt;
+  &lt;MapView&gt;
+    &lt;MapView.Marker ...    &gt; ...  &lt;/MapView.Marker&gt;
+    {
+      this.state.lastRecords.map(function(item, index){
+        item = JSON.parse(item[1])
+        coords = { latitude: item.latitude, longitude: item.longitude }
+        return (
+          &lt;MapView.Marker
+            coordinate = { coords }
+            draggable
+          &gt;
+            &lt;PriceMarker amount={item.spentMoney} /&gt;
+          &lt;/MapView.Marker&gt;
+        )
+      }.bind(this))
+    }
+  &lt;/MapView&gt;
+  …
+  &lt;TouchableHighlight
+   activeOpacity={0.6}
+   underlayColor={'white'}
+   onPress={() =&gt; this.saveData()}&gt;
+    &lt;Text style={styles.button}&gt;Save&lt;/Text&gt;
+  &lt;/TouchableHighlight&gt;
+  &lt;Text style={styles.instructions}&gt;
+    {this.state.message}
+  &lt;/Text&gt;
+  &lt;Text style={styles.instructions}&gt;
+    Your fuel consumption on this {this.state.droveMileage} km is {Math.round(this.state.filledLiters * 100 / this.state.droveMileage *100)/100} l/100km
+  &lt;/Text&gt;
+&lt;/View&gt;
+</code>
+We have added a cycle for generating markers inside the <code>&lt;MapView&gt;</code> tag. This part of code maps all previous records and creates markers on map from them.
+<code>&lt;TouchableHighlight&gt;</code>  is a wrapper for making views respond properly to touch.  The main part is <code>onPress</code> event that calls <code>this.saveData()</code> method.
+<code>this.state.message</code> returns a message about successful save.
+Finally, we calculate fuel consumption basing on the mileage driven. We assume that the previous time user filled up his car and check how much fuel he has spent until now. Then we take the driven mileage and calculate his fuel consumption.
+I think that my drive to Riga could look like this:</p>
+
+<p><img class="center" src="/images/react_maps/Screenshot_20160701-163737-576x1024.png" width="300">
+<img class="center" src="/images/react_maps/Screenshot_20160701-163833-576x1024.png" width="300">
+<img class="center" src="/images/react_maps/Screenshot_20160701-164036-576x1024.png" width="300"></p>
+
+<p>That’s it! Finally, don’t forget to commit your changes.
+You can manipulate with the saved data in any way: calculate all user’s expenses, mileage driven, average fuel consumption or create a swarm-like application.
+Link to the GitHub <a href="https://github.com/AKovtunov/gas_counter_map">source</a>
+Just for case if you are not sure what is difference between <a href="http://www.diatomenterprises.com/technologies/reactjs-specifics/">ReactJS</a> and React Native.
+React Native is a mobile framework that compiles to native app components.
+It allows you to build native mobile applications (iOS, Android, and Windows) in JavaScript.
+<a href="http://www.diatomenterprises.com/technologies/reactjs-specifics/">ReactJS</a> is full JS library which is easy to use on your web.
+Both are open sourced by Facebook.</p>
+]]></content>
+  </entry>
+  
+</feed>
