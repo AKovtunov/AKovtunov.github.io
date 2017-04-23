@@ -6,6 +6,8 @@ comments: true
 categories: "reactjs, javascript, react-native, google-maps, android, sample, example, first-application"
 ---
 
+> This is a copy of my [original post for Diatom Enterprises](http://www.diatomenterprises.com/react-native-in-one-day-android-application-for-tracking-your-spends-with-google-maps-support/)
+
 {% img center /images/react_maps/title_image.png %}
 
 Usually I travel a lot by my car and make blog posts about it. And usually readers ask me about the mileage, gas consumption and other useful information. So I have decided to create a simple application, where I would be able to save all this information just in few clicks, without any registrations, advertisements and big tracking applications. I’ve never written any Android application and I wanted to take a look at the React library, so react-native was the best choice for me.
