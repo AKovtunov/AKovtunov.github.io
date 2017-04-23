@@ -3,8 +3,9 @@ layout: post
 title: "Gamedev on Ruby? Why not!"
 date: 2017-04-23 12:18:04 +0200
 comments: true
-categories: ruby, gamedev, snake, games, game-development, snake-game, rspec, TDD, test-driven-development
+categories: "ruby, gamedev, snake, games, game-development, snake-game, rspec, TDD, test-driven-development"
 ---
+
 > This is a copy of my [original post for Diatom Enterprises](http://www.diatomenterprises.com/gamedev-on-ruby-why-not/)
 
 {% img center /images/ruby_snake/Screenshot-from-2016-08-17-034112.png %}
@@ -627,7 +628,6 @@ Dir[File.expand_path('lib/errors/*.rb', File.dirname(__FILE__))].each do |file|
   require file
 end
 require 'pry'
-
 game = Game.new
 game.start
 ```
