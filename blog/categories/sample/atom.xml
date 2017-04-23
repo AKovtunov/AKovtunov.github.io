@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Sample, | Knowledge Gathering]]></title>
   <link href="http://akovtunov.github.io/blog/categories/sample/atom.xml" rel="self"/>
   <link href="http://akovtunov.github.io/"/>
-  <updated>2017-04-23T10:45:10+02:00</updated>
+  <updated>2017-04-23T14:43:28+02:00</updated>
   <id>http://akovtunov.github.io/</id>
   <author>
     <name><![CDATA[Alexandr Kovtunov]]></name>
@@ -18,7 +18,9 @@
     <link href="http://akovtunov.github.io/blog/2017/04/23/react-native-in-one-day-android-application-for-tracking-your-spends-with-google-maps-support/"/>
     <updated>2017-04-23T00:32:26+02:00</updated>
     <id>http://akovtunov.github.io/blog/2017/04/23/react-native-in-one-day-android-application-for-tracking-your-spends-with-google-maps-support</id>
-    <content type="html"><![CDATA[<p><img class="center" src="/images/react_maps/title_image.png"></p>
+    <content type="html"><![CDATA[<blockquote><p>This is a copy of my <a href="http://www.diatomenterprises.com/react-native-in-one-day-android-application-for-tracking-your-spends-with-google-maps-support/">original post for Diatom Enterprises</a></p></blockquote>
+
+<p><img class="center" src="/images/react_maps/title_image.png"></p>
 
 <p>Usually I travel a lot by my car and make blog posts about it. And usually readers ask me about the mileage, gas consumption and other useful information. So I have decided to create a simple application, where I would be able to save all this information just in few clicks, without any registrations, advertisements and big tracking applications. I’ve never written any Android application and I wanted to take a look at the React library, so react-native was the best choice for me.</p>
 

@@ -1,0 +1,902 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Snake-game, | Knowledge Gathering]]></title>
+  <link href="http://akovtunov.github.io/blog/categories/snake-game/atom.xml" rel="self"/>
+  <link href="http://akovtunov.github.io/"/>
+  <updated>2017-04-23T14:43:28+02:00</updated>
+  <id>http://akovtunov.github.io/</id>
+  <author>
+    <name><![CDATA[Alexandr Kovtunov]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Gamedev on Ruby? Why Not!]]></title>
+    <link href="http://akovtunov.github.io/blog/2017/04/23/gamedev-on-ruby-why-not/"/>
+    <updated>2017-04-23T12:18:04+02:00</updated>
+    <id>http://akovtunov.github.io/blog/2017/04/23/gamedev-on-ruby-why-not</id>
+    <content type="html"><![CDATA[<blockquote><p>This is a copy of my <a href="http://www.diatomenterprises.com/gamedev-on-ruby-why-not/">original post for Diatom Enterprises</a></p></blockquote>
+
+<p><img class="center" src="/images/ruby_snake/Screenshot-from-2016-08-17-034112.png"></p>
+
+<p>This article isn’t about big games with sophisticated graphics, nor will I be creating something like MMORPG (even though, I think it’s possible). In this article, I will be creating a terminal Snake Game.
+I know a lot of developers; including myself, who got started in programming, because they were crazy about games. They wanted to create something similar to what they had played before, but in the end, for some reason they are doing programming that has nothing to do with gamedev. So in this article I will be going though the steps to create a simple game in <a href="http://www.diatomenterprises.com/technologies/ruby-on-rails/">Ruby language</a>, which most of us use for various web-applications.</p>
+
+<!--more-->
+
+
+<h2>PREPARATIONS</h2>
+
+<p>I prefer to use ruby 2.3.1 with structured code and folders. For the Snake Game, I recommend the following folder structure:
+<code>plain
+ruby_snake/
+–lib/
+|– Files that will create game mechanics
+–spec/
+|– spec_helper.rb
+|– Test files
+Gemfile
+start.rb
+</code></p>
+
+<p>The <code>Gemfile</code> contains a few gems: RSpec for tests and Pry for debugging our application. <code>Gemfile</code>:
+<code>ruby
+source 'https://rubygems.org'
+gem 'rspec'
+gem 'pry'
+</code></p>
+
+<p>For <code>rspec</code>, setup a <code>spec_helper.rb</code>. This file will contain each lib file and configure RSpec for our needs. <code>spec/spec_helper.rb</code> should be included in each test.
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">Dir</span><span class="o">[</span><span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="o">.</span><span class="n">.</span><span class="o">/</span><span class="n">lib</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;.</span><span class="n">rb</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;,</span> <span class="no">File</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="o">&lt;</span><span class="n">strong</span><span class="o">&gt;</span><span class="no">FILE</span><span class="o">&lt;</span><span class="sr">/strong&gt;))].each do |file|</span>
+</span><span class='line'><span class="sr">  require file</span>
+</span><span class='line'><span class="sr">end</span>
+</span><span class='line'><span class="sr">Dir[File.expand_path(&amp;lsquo;../</span><span class="n">lib</span><span class="o">/</span><span class="n">errors</span><span class="o">/&lt;</span><span class="sr">/em&gt;.rb&amp;rsquo;, File.dirname(&lt;strong&gt;FILE&lt;/s</span><span class="n">trong</span><span class="o">&gt;</span><span class="p">))</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">file</span><span class="o">|</span>
+</span><span class='line'>  <span class="nb">require</span> <span class="n">file</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="no">RSpec</span><span class="o">.</span><span class="n">configure</span> <span class="k">do</span> <span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span class='line'>  <span class="c1"># Use color in STDOUT</span>
+</span><span class='line'>  <span class="n">config</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="kp">true</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  # Use color not only in STDOUT but also in pagers and files</span>
+</span><span class='line'><span class="sr">  config.tty = true&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="c1"># Use the specified formatter</span>
+</span><span class='line'>  <span class="n">config</span><span class="o">.</span><span class="n">formatter</span> <span class="o">=</span> <span class="ss">:documentation</span> <span class="c1"># :progress, :html, :textmate</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<h2>THE STRUCTURE OF THE GAME</h2>
+
+<p>Can you imagine all the game components? It should look something like this:
+<code>plain
+. . . . . . . . .
+. . . . . . . . .
+. . . . . . . . .
+. . . . . . . . .
+. . x x x x . o .
+. . . . . . . . .
+. . . . . . . . .
+. . . . . . . . .
+. . . . . . . . .
+</code>
+Here you can see the <code>Board</code>, the <code>Snake</code> and the <code>Food</code>.
+In addition, you will need something that will connect all these things together – the <code>Game</code>.
+Let’s look closely at these components.</p>
+
+<h2>THE BOARD</h2>
+
+<p>The <code>Board</code> has a width and a length, in our sample the width is 9 and the length is 9.
+<code>plain
+  1 2 3 4 5 6 7 8 9
+1 . . . . . . . . .
+2 . . . . . . . . .
+3 . . . . . . . . .
+4 . . . . . . . . .
+5 . . . . . . . . .
+6 . . . . . . . . .
+7 . . . . . . . . .
+8 . . . . . . . . .
+9 . . . . . . . . .
+</code>
+So, let’s write some tests that will cover our Board.</p>
+
+<pre><code class="ruby">require 'spec_helper'
+describe Board do
+  describe "#new" do
+    it "initializes gameboard with board" do
+      expect(Board.new(40,40).board).not_to be_nil
+    end
+  end
+  describe "#create_board" do
+    let(:gameboard){Board.new(40,40)}
+    it "returns an array" do
+      expect(gameboard.board).to be_instance_of(Array)
+    end
+    it "returns an array with given size" do
+      expect(gameboard.board.size).to be_eql(40)
+      expect(gameboard.board[0].size).to be_eql(40)
+    end
+    it "returns board full of . symbols" do
+      expect(gameboard.board.first.first).to eql('.')
+    end
+  end
+end
+</code></pre>
+
+<p>And specifically this will create our Board and its methods:</p>
+
+<pre><code class="ruby">class Board
+  attr_reader :length, :width, :board
+
+  def initialize(width, length)
+    @length = length
+    @width = width
+    create_board
+  end
+
+  def center
+    [board.length/2, board.first.length/2]
+  end
+
+  def print_text(text)
+    char_center = text.length/2
+    i = 0
+    text.chars.each do |char|
+      board[center.first][center.last - char_center + i] = char
+      i+=1
+    end
+  end
+
+  def create_board
+    @board = Array.new(length){ Array.new(width, '.') }
+  end
+
+end
+</code></pre>
+
+<p>You can’t change the <code>length</code>, or the <code>width</code> of the board or the board itself after initialization, so I have made them readable only.
+Let’s walk through the code.</p>
+
+<ul>
+<li><code>center</code> – will calculate center points of the created Board;</li>
+<li><code>print_text</code> – will print the given text in the middle of the Board;</li>
+<li><code>create_board</code> – will create the Board and fill it with <code>“.”</code> to show this later on the screen.
+Did you notice that I used a <code>block</code> to create an array, instead of <code>Array.new (length, Array.new(width, '.'))</code>?
+At first sight the lines looks similar to each other, but if we look under the hood, you will notice that the block creates array each time, so <code>array[0].object_id</code> won’t be the same as: <code>array[1].object_id</code>.
+And without the <code>block</code>, arrays will be identical.
+<code>ruby
+pry(main)&gt; array = Array.new(length){ Array.new(width, '.') }
+=&gt; [[".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
+[".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
+[".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
+[".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
+[".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
+[".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
+[".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
+[".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
+[".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
+[".", ".", ".", ".", ".", ".", ".", ".", ".", "."]]
+pry(main)&gt; array[0].object_id
+=&gt; 5689040
+pry(main)&gt; array[1].object_id
+=&gt; 5689000
+</code>
+<code>ruby
+pry(main)&gt; array2 = Array.new(length, Array.new(width, '.'))
+=&gt; [[".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
+[".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
+[".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
+[".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
+[".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
+[".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
+[".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
+[".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
+[".", ".", ".", ".", ".", ".", ".", ".", ".", "."],
+[".", ".", ".", ".", ".", ".", ".", ".", ".", "."]]
+pry(main)&gt; array2[0].object_id
+=&gt; 14755060
+pry(main)&gt; array2[1].object_id
+=&gt; 14755060
+</code></li>
+</ul>
+
+
+<p>If make changes in the first line, this will immediately lead to changes in another.</p>
+
+<h2>THE SNAKE</h2>
+
+<p>After you have created a board sample, it is time to create your ‘hero’! Here is the file to set the requirements for the snake and to tests your future snake <code>snake_spec.rb</code>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+<span class='line-number'>184</span>
+<span class='line-number'>185</span>
+<span class='line-number'>186</span>
+<span class='line-number'>187</span>
+<span class='line-number'>188</span>
+<span class='line-number'>189</span>
+<span class='line-number'>190</span>
+<span class='line-number'>191</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="n">spec_helper</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;</span>
+</span><span class='line'><span class="n">describe</span> <span class="no">Snake</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">let</span><span class="p">(</span><span class="ss">:snake</span><span class="p">){</span><span class="no">Snake</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)}</span>
+</span><span class='line'>  <span class="n">describe</span> <span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="c1">#new&amp;rdquo; do</span>
+</span><span class='line'>    <span class="n">let</span><span class="p">(</span><span class="ss">:snake</span><span class="p">){</span><span class="no">Snake</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)}</span>
+</span><span class='line'>    <span class="n">it</span> <span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="n">snake</span> <span class="n">is</span> <span class="n">an</span> <span class="n">array</span> <span class="n">of</span> <span class="n">body</span> <span class="n">parts</span><span class="o">&amp;</span><span class="n">rdquo</span><span class="p">;</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">expect</span><span class="p">(</span><span class="n">snake</span><span class="o">.</span><span class="n">parts</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">be_kind_of</span><span class="p">(</span><span class="nb">Array</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">expect</span><span class="p">(</span><span class="n">snake</span><span class="o">.</span><span class="n">parts</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">be_eql</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">it</span> <span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="n">initializes</span> <span class="n">snake</span> <span class="n">head</span> <span class="n">position</span><span class="o">&amp;</span><span class="n">rdquo</span><span class="p">;</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">expect</span><span class="p">(</span><span class="n">snake</span><span class="o">.</span><span class="n">parts</span><span class="o">.</span><span class="n">first</span><span class="p">)</span><span class="o">.</span><span class="n">not_to</span> <span class="n">be_nil</span>
+</span><span class='line'>      <span class="n">expect</span><span class="p">(</span><span class="n">snake</span><span class="o">.</span><span class="n">parts</span><span class="o">.</span><span class="n">first</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">be_kind_of</span><span class="p">(</span><span class="nb">Array</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">expect</span><span class="p">(</span><span class="n">snake</span><span class="o">.</span><span class="n">parts</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">be_eql</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">expect</span><span class="p">(</span><span class="n">snake</span><span class="o">.</span><span class="n">parts</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">first</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">be_kind_of</span><span class="p">(</span><span class="nb">Integer</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">expect</span><span class="p">(</span><span class="n">snake</span><span class="o">.</span><span class="n">parts</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">last</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">be_kind_of</span><span class="p">(</span><span class="nb">Integer</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">it</span> <span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="n">initializes</span> <span class="n">snake</span> <span class="n">length</span><span class="o">&amp;</span><span class="n">rdquo</span><span class="p">;</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">expect</span><span class="p">(</span><span class="n">snake</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">be_eql</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">it</span> <span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="n">initializes</span> <span class="n">snake</span> <span class="n">direction</span><span class="o">&amp;</span><span class="n">rdquo</span><span class="p">;</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">expect</span><span class="p">(</span><span class="n">snake</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">be_eql</span><span class="p">(</span><span class="ss">:left</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  it &amp;ldquo;#step should add one part and remove the last one from the snake&amp;rdquo; do</span>
+</span><span class='line'><span class="sr">    old_snake = snake</span>
+</span><span class='line'><span class="sr">      new_head = [snake.parts.first.first,snake.parts.first.last]</span>
+</span><span class='line'><span class="sr">      old_snake.parts.unshift(new_head).pop</span>
+</span><span class='line'><span class="sr">    snake.step</span>
+</span><span class='line'><span class="sr">    expect(snake.parts).to be_eql(old_snake.parts)</span>
+</span><span class='line'><span class="sr">  end&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="n">it</span> <span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="c1">#turn should change snake&amp;rsquo;s direction&amp;rdquo; do</span>
+</span><span class='line'>    <span class="n">snake</span><span class="o">.</span><span class="n">turn</span><span class="p">(</span><span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="n">w</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;)</span>
+</span><span class='line'>    <span class="n">expect</span><span class="p">(</span><span class="n">snake</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">eql</span><span class="p">(</span><span class="ss">:up</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">snake</span><span class="o">.</span><span class="n">turn</span><span class="p">(</span><span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="n">a</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;)</span>
+</span><span class='line'>    <span class="n">expect</span><span class="p">(</span><span class="n">snake</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">eql</span><span class="p">(</span><span class="ss">:left</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">snake</span><span class="o">.</span><span class="n">turn</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;</span><span class="n">s</span><span class="s1">&#39;)</span>
+</span><span class='line'><span class="s1">    expect(snake.direction).to eql(:down)</span>
+</span><span class='line'><span class="s1">    snake.turn(&amp;rsquo;d&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">expect</span><span class="p">(</span><span class="n">snake</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">eql</span><span class="p">(</span><span class="ss">:right</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  it &amp;ldquo;#update_head updates snake&amp;rsquo;s head position if snake mets wall&amp;rdquo; do</span>
+</span><span class='line'><span class="sr">    snake_head = snake.parts.first</span>
+</span><span class='line'><span class="sr">    snake_head[0] = 2</span>
+</span><span class='line'><span class="sr">    snake.update_head(0, 2)</span>
+</span><span class='line'><span class="sr">    expect(snake.parts.first).to be_eql(snake_head)</span>
+</span><span class='line'><span class="sr">  end&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="n">it</span> <span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="c1">#increase increases snake after food being eaten&amp;rdquo; do</span>
+</span><span class='line'>    <span class="n">expect</span><span class="p">{</span><span class="n">snake</span><span class="o">.</span><span class="n">increase</span><span class="p">}</span><span class="o">.</span><span class="n">to</span> <span class="n">change</span><span class="p">{</span><span class="n">snake</span><span class="o">.</span><span class="n">size</span><span class="p">}</span><span class="o">.</span><span class="n">from</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">expect</span><span class="p">{</span><span class="n">snake</span><span class="o">.</span><span class="n">increase</span><span class="p">}</span><span class="o">.</span><span class="n">to</span> <span class="n">change</span><span class="p">{</span><span class="n">snake</span><span class="o">.</span><span class="n">parts</span><span class="o">.</span><span class="n">length</span><span class="p">}</span><span class="o">.</span><span class="n">from</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;end</span>
+</span><span class='line'><span class="sr">&lt;code&gt;</span>
+</span><span class='line'><span class="sr">As you can see, I want the `Snake` to be an array of ‘parts’, which means a small `array` of coordinates.</span>
+</span><span class='line'><span class="sr">Let me explain this. Let’s draw our Snake as an array:</span>
+</span><span class='line'><span class="sr">&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="n">plain</span>
+</span><span class='line'><span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span><span class="n">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;.     .     .     .     .     .     .     .     .</span>
+</span><span class='line'><span class="sr">.     .     .     .     .     .     .     .     .&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span><span class="n">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;.     .   [2,4] [3,4] [4,4] [5,4]   .     .     .&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span><span class="n">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;.     .     .     .     .     .     .     .     .&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span><span class="n">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;.     .     .     .     .     .     .     .     .</span>
+</span><span class='line'><span class="sr">&lt;code&gt;</span>
+</span><span class='line'><span class="sr">Now, if you need to move the Snake or change its direction, you can manage those blocks. You can add a part to the head and remove the last part from the tail. Or if the Snake eats the food block, you can just add it to the tail as well!</span>
+</span><span class='line'><span class="sr">Turning the Snake is quite simple. You can add block in any direction from the current head block and remove the Snake’s last tail element. The Snake can be moved by one part in any direction.</span>
+</span><span class='line'><span class="sr">&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="n">plain</span>
+</span><span class='line'><span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span><span class="n">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;.     .     .     .     .     .     .     .     .</span>
+</span><span class='line'><span class="sr">.     .     .     .     .     .     .     .     .&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span><span class="n">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;.     .   [2,4] [3,4] [4,4]   .     .     .     .&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;.</span>     <span class="o">.</span>   <span class="o">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="o">]</span>   <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span><span class="n">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;.     .     .     .     .     .     .     .     .&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span>     <span class="o">.</span><span class="n">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;.     .     .     .     .     .     .     .     .</span>
+</span><span class='line'><span class="sr">&lt;code&gt;``</span>
+</span><span class='line'><span class="sr">You will now need to create the Snake part with new coordinates, taking blocks from the head and changing its positions depending on the direction. Then, you can use&lt;/</span><span class="n">code</span><span class="o">&gt;</span><span class="n">parts</span><span class="o">.</span><span class="n">unshift</span><span class="p">(</span><span class="n">new_head</span><span class="p">)</span><span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">to</span> <span class="n">add</span> <span class="n">the</span> <span class="kp">new</span> <span class="n">block</span> <span class="n">to</span> <span class="n">the</span> <span class="n">beginning</span> <span class="ow">and</span><span class="o">&lt;</span><span class="sr">/code&gt;parts.pop` to remove the last one from the array.</span>
+</span><span class='line'><span class="sr">If the snake eats ‘food’, you will create another part at the end of the Snake and update its size. If the snake meets the wall, you can simply move it to the other wall by changing its head coordinates.&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span> <span class="n">class</span><span class="o">=</span><span class="s2">&quot;ruby&quot;</span><span class="o">&gt;</span><span class="k">class</span> <span class="nc">Snake</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:size</span><span class="p">,</span> <span class="ss">:direction</span><span class="p">,</span> <span class="ss">:position</span><span class="p">,</span> <span class="ss">:parts</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">max_x</span><span class="p">,</span> <span class="n">max_y</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@size</span> <span class="o">=</span> <span class="mi">4</span>
+</span><span class='line'>    <span class="vi">@direction</span> <span class="o">=</span> <span class="ss">:left</span>
+</span><span class='line'>    <span class="vi">@parts</span> <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'>    <span class="n">set_start_position</span><span class="p">(</span><span class="n">max_x</span><span class="p">,</span> <span class="n">max_y</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">create_snake</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create_snake</span>
+</span><span class='line'>    <span class="n">size</span><span class="o">.</span><span class="n">times</span> <span class="k">do</span> <span class="o">|</span><span class="n">iteration</span><span class="o">|</span>
+</span><span class='line'>      <span class="vi">@parts</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="n">lt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="n">lt</span><span class="p">;</span> <span class="o">[</span><span class="n">position</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">,</span> <span class="n">position</span><span class="o">[</span><span class="mi">1</span><span class="o">]+</span><span class="n">iteration</span><span class="o">]</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">head</span>
+</span><span class='line'>    <span class="n">parts</span><span class="o">.</span><span class="n">first</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">body</span>
+</span><span class='line'>    <span class="n">parts</span><span class="o">[</span><span class="mi">1</span><span class="o">.</span><span class="n">.parts</span><span class="o">.</span><span class="n">length</span><span class="o">-</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">set_start_position</span><span class="p">(</span><span class="n">max_x</span><span class="p">,</span> <span class="n">max_y</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@position</span> <span class="o">=</span> <span class="o">[</span><span class="no">Random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="n">.max_x</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="no">Random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="n">.max_y</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">increase</span>
+</span><span class='line'>    <span class="vi">@size</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="vi">@parts</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="n">lt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="n">lt</span><span class="p">;</span> <span class="n">parts</span><span class="o">.</span><span class="n">last</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">update_head</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@parts</span><span class="o">.</span><span class="n">first</span><span class="o">[</span><span class="n">idx</span><span class="o">]</span> <span class="o">=</span> <span class="n">value</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">turn</span><span class="p">(</span><span class="n">key_code</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@direction</span> <span class="o">=</span> <span class="k">case</span> <span class="n">key_code</span><span class="o">.</span><span class="n">chr</span>
+</span><span class='line'>    <span class="k">when</span> <span class="s1">&#39;w&#39;</span> <span class="o">||</span> <span class="s1">&#39;W&#39;</span>
+</span><span class='line'>      <span class="ss">:up</span>
+</span><span class='line'>    <span class="k">when</span> <span class="s1">&#39;s&#39;</span> <span class="o">||</span> <span class="s1">&#39;S&#39;</span>
+</span><span class='line'>      <span class="ss">:down</span>
+</span><span class='line'>    <span class="k">when</span> <span class="s1">&#39;a&#39;</span> <span class="o">||</span> <span class="s1">&#39;A&#39;</span>
+</span><span class='line'>      <span class="ss">:left</span>
+</span><span class='line'>    <span class="k">when</span> <span class="s1">&#39;d&#39;</span> <span class="o">||</span> <span class="s1">&#39;D&#39;</span>
+</span><span class='line'>      <span class="ss">:right</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">direction</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">step</span>
+</span><span class='line'>    <span class="n">new_head</span> <span class="o">=</span> <span class="o">[</span><span class="n">head</span><span class="o">.</span><span class="n">first</span><span class="p">,</span><span class="n">head</span><span class="o">.</span><span class="n">last</span><span class="o">]</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">direction</span>
+</span><span class='line'>    <span class="k">when</span> <span class="ss">:left</span>
+</span><span class='line'>      <span class="n">new_head</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span> <span class="o">-=</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="k">when</span> <span class="ss">:right</span>
+</span><span class='line'>      <span class="n">new_head</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="k">when</span> <span class="ss">:up</span>
+</span><span class='line'>      <span class="n">new_head</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">-=</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="k">when</span> <span class="ss">:down</span>
+</span><span class='line'>      <span class="n">new_head</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">parts</span><span class="o">.</span><span class="n">unshift</span><span class="p">(</span><span class="n">new_head</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">parts</span><span class="o">.</span><span class="n">pop</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="no">Let</span><span class="err">’</span><span class="n">s</span> <span class="n">walk</span> <span class="n">through</span> <span class="n">the</span> <span class="n">code</span><span class="o">.</span><span class="n">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;ul&gt;</span>
+</span><span class='line'><span class="sr">&lt;li&gt;&lt;code&gt;initialize&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="err">–</span> <span class="n">creates</span> <span class="n">start</span> <span class="n">parameters</span> <span class="k">for</span> <span class="n">the</span> <span class="no">Snake</span><span class="p">,</span> <span class="n">sets</span> <span class="n">start</span> <span class="n">position</span> <span class="ow">and</span> <span class="n">creates</span> <span class="n">the</span> <span class="no">Snake</span><span class="o">.</span><span class="n">&lt;</span><span class="sr">/li&gt;</span>
+</span><span class='line'><span class="sr">&lt;li&gt;&lt;code&gt;create_snake&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="err">–</span> <span class="n">creates</span> <span class="no">Snake</span><span class="p">,</span> <span class="n">using</span> <span class="n">size</span> <span class="n">variable</span> <span class="n">to</span> <span class="n">define</span> <span class="no">Snake</span><span class="err">’</span><span class="n">s</span> <span class="n">length</span><span class="o">.</span><span class="n">&lt;</span><span class="sr">/li&gt;</span>
+</span><span class='line'><span class="sr">&lt;li&gt;&lt;code&gt;head&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="err">–</span> <span class="n">returns</span> <span class="n">head</span> <span class="n">part</span> <span class="n">of</span> <span class="no">Snake</span><span class="o">&lt;</span><span class="sr">/li&gt;</span>
+</span><span class='line'><span class="sr">&lt;li&gt;&lt;code&gt;body&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="err">–</span> <span class="n">returns</span> <span class="n">all</span> <span class="n">other</span> <span class="n">parts</span><span class="p">,</span> <span class="n">that</span> <span class="n">you</span> <span class="n">can</span> <span class="n">call</span> <span class="n">as</span> <span class="err">‘</span><span class="n">body</span><span class="err">’</span><span class="o">&lt;</span><span class="sr">/li&gt;</span>
+</span><span class='line'><span class="sr">&lt;li&gt;&lt;code&gt;set_start_position&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="err">–</span> <span class="n">randomly</span> <span class="n">set</span> <span class="n">start</span> <span class="n">position</span> <span class="n">of</span> <span class="n">the</span> <span class="no">Snake</span><span class="o">&lt;</span><span class="sr">/li&gt;</span>
+</span><span class='line'><span class="sr">&lt;li&gt;&lt;code&gt;update_head&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="err">–</span> <span class="n">updates</span> <span class="n">head</span><span class="p">,</span> <span class="k">if</span> <span class="n">snake</span> <span class="n">meet</span> <span class="n">wall</span><span class="o">&lt;</span><span class="sr">/li&gt;</span>
+</span><span class='line'><span class="sr">&lt;li&gt;&lt;code&gt;increase&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="err">–</span> <span class="n">increases</span> <span class="n">snake</span><span class="err">’</span><span class="n">s</span> <span class="n">size</span><span class="p">,</span> <span class="k">if</span> <span class="n">the</span> <span class="no">Snake</span> <span class="n">eats</span> <span class="n">food</span><span class="o">&lt;</span><span class="sr">/li&gt;</span>
+</span><span class='line'><span class="sr">&lt;li&gt;&lt;code&gt;turn&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="err">–</span> <span class="n">changes</span> <span class="no">Snake</span><span class="err">’</span><span class="n">s</span> <span class="n">direction</span><span class="o">&lt;</span><span class="sr">/li&gt;</span>
+</span><span class='line'><span class="sr">&lt;li&gt;&lt;code&gt;step&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="err">–</span> <span class="n">moves</span> <span class="no">Snake</span><span class="err">’</span><span class="n">s</span> <span class="n">each</span> <span class="n">iteration</span><span class="o">&lt;</span><span class="sr">/li&gt;</span>
+</span><span class='line'><span class="sr">&lt;/u</span><span class="n">l</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="no">Now</span> <span class="n">your</span> <span class="no">Snake</span> <span class="n">needs</span> <span class="n">to</span> <span class="n">eat</span> <span class="n">something</span><span class="o">.</span> <span class="no">Let</span><span class="err">’</span><span class="n">s</span> <span class="n">write</span> <span class="n">the</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="no">Food</span><span class="o">&lt;</span><span class="sr">/code&gt; object!&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h2</span><span class="o">&gt;</span><span class="no">FEEDING</span> <span class="no">THE</span> <span class="no">SNAKE</span><span class="o">&lt;</span><span class="sr">/h2&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;Food is a small object, that has only two coordinates, it will be reinitialized the moment after the Snake will eats it.</span>
+</span><span class='line'><span class="sr">Let me describe it, using tests:</span>
+</span></code></pre></td></tr></table></div></figure> ruby
+require &lsquo;spec_helper&rsquo;
+describe Food do
+  let(:food_item){ Food.new(25, 25) }
+  describe &ldquo;#new&rdquo; do
+    it &ldquo;initializes food item with start coords&rdquo; do
+      expect(food_item).not_to be_nil
+      expect(food_item.x).not_to be_nil
+      expect(food_item.y).not_to be_nil
+    end
+  end</p>
+
+<p>  it &ldquo;#coordinates returns array of food&rsquo;s coords&rdquo; do
+    expect(food_item.coordinates).to eq([food_item.x, food_item.y])
+  end
+end
+<code>
+Later, when the Snake’s head coordinates are over a Food coordinates, the game will show that the Snake ate the food. The snake will then increase in size and the Food object will reinitialize. That’s why the Food should be randomly generated.
+</code> ruby
+class Food
+  attr_reader :x, :y</p>
+
+<p>  def initialize(board_max_x, board_max_y)
+    @x = Random.rand(board_max_x-1)
+    @y = Random.rand(board_max_y-1)
+  end</p>
+
+<p>  def coordinates
+    [x,y]
+  end
+end
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">What</span> <span class="n">will</span> <span class="n">happen</span><span class="p">,</span> <span class="k">if</span> <span class="n">the</span> <span class="no">Snake</span> <span class="n">chooses</span> <span class="n">to</span> <span class="n">eat</span> <span class="n">itself?</span> <span class="no">You</span> <span class="n">will</span> <span class="n">need</span> <span class="n">to</span> <span class="n">create</span> <span class="n">some</span> <span class="n">errors</span> <span class="k">for</span> <span class="n">this</span> <span class="k">case</span><span class="o">.</span><span class="n">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;h2&gt;THROWING ERROR&lt;/</span><span class="n">h2</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="no">We</span> <span class="n">can</span> <span class="n">create</span> <span class="n">different</span> <span class="n">errors</span> <span class="k">for</span> <span class="n">different</span> <span class="n">cases</span><span class="o">.</span> <span class="no">For</span> <span class="n">example</span><span class="p">,</span> <span class="n">the</span> <span class="no">Snake</span> <span class="n">can</span> <span class="n">meet</span> <span class="n">walls</span> <span class="n">sometimes</span><span class="p">,</span> <span class="n">through</span> <span class="n">which</span> <span class="n">it</span> <span class="n">could</span> <span class="n">go</span> <span class="n">through</span> <span class="ow">or</span> <span class="n">which</span> <span class="n">it</span> <span class="n">could</span> <span class="n">eat</span><span class="o">.</span> <span class="no">If</span> <span class="n">you</span> <span class="n">would</span> <span class="n">like</span> <span class="n">to</span> <span class="n">create</span> <span class="n">some</span> <span class="n">blocks</span><span class="p">,</span> <span class="n">it</span> <span class="n">may</span> <span class="n">randomly</span> <span class="n">appear</span> <span class="n">on</span> <span class="n">the</span> <span class="no">Board</span> <span class="ow">and</span> <span class="n">the</span> <span class="no">Snake</span> <span class="n">will</span> <span class="n">smash</span> <span class="n">into</span> <span class="n">them</span><span class="o">.</span> <span class="no">For</span> <span class="n">this</span> <span class="n">situations</span> <span class="n">you</span> <span class="n">need</span> <span class="n">to</span> <span class="n">create</span> <span class="n">some</span> <span class="n">errors</span><span class="o">.</span>
+</span><span class='line'><span class="n">I</span> <span class="n">created</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">lib</span><span class="o">/</span><span class="n">errors</span><span class="o">/</span><span class="n">ate_itself_error</span><span class="o">.</span><span class="n">rb</span><span class="o">&lt;</span><span class="sr">/code&gt; file for these situations, such as The Snake eating itself.</span>
+</span><span class='line'><span class="sr">It easily creates a new error class to determine the situation.</span>
+</span><span class='line'><span class="sr">&lt;code&gt;ruby</span>
+</span><span class='line'><span class="sr">class AteItselfError &amp;lt; StandardError;</span>
+</span><span class='line'><span class="sr">end</span>
+</span><span class='line'><span class="sr">&lt;/</span><span class="n">code</span><span class="o">&gt;</span>
+</span><span class='line'><span class="no">You</span> <span class="n">will</span> <span class="n">use</span> <span class="n">it</span> <span class="n">later</span> <span class="k">in</span> <span class="n">our</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="no">Game</span><span class="o">&lt;</span><span class="sr">/code&gt; class.&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h2</span><span class="o">&gt;</span><span class="no">THE</span> <span class="no">GAME</span> <span class="no">MECHANICS</span><span class="o">&lt;</span><span class="sr">/h2&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;Now it’s time to write the mechanics for the Game.</span>
+</span><span class='line'><span class="sr">I have created a list of requirements, excluding the ones that show our information at the terminal.</span>
+</span><span class='line'><span class="sr">&lt;code&gt;spec/</span><span class="n">game_spec</span><span class="o">.</span><span class="n">rb</span><span class="o">&lt;</span><span class="sr">/code&gt;:</span>
+</span></code></pre></td></tr></table></div></figure> ruby
+require &lsquo;spec_helper&rsquo;
+describe Game do
+  let(:new_game) {Game.new}
+  describe &ldquo;#new&rdquo; do
+    it &ldquo;initializes game&rdquo; do
+      expect(new_game.gameboard).to be_kind_of(Board)
+      expect(new_game.snake).to be_kind_of(Snake)
+      expect(new_game.food).to be_kind_of(Food)
+    end
+  end</p>
+
+<p>  it &ldquo;#check_snake_position checks all checks successfully&rdquo; do
+    expect{new_game.check_snake_position}.to_not raise_error(AteItselfError)
+    expect{new_game.check_snake_position}.to_not change{new_game.snake.body}
+  end</p>
+
+<p>  it &ldquo;#check_if_snake_ate_itself&rdquo; do
+    new_game.snake.parts[0] = new_game.snake.parts.last
+    expect{new_game.check_if_snake_ate_itself}.to raise_error(AteItselfError)
+    expect{new_game.check_snake_position}.to raise_error(AteItselfError)
+  end</p>
+
+<p>  it &ldquo;#check_if_snake_met_wall&rdquo; do
+    new_game.snake.parts[0][1] = new_game.gameboard.width
+    expect{new_game.check_if_snake_met_wall}.to change{new_game.snake.parts[0][1]}.from(new_game.gameboard.width).to(0)
+    new_game.snake.parts[0][1] = new_game.gameboard.width
+    expect{new_game.check_snake_position}.to change{new_game.snake.parts[0][1]}.from(new_game.gameboard.width).to(0)
+  end</p>
+
+<p>  it &ldquo;#check_if_snake_ate_food&rdquo; do
+    new_game.snake.parts[0] = new_game.food.coordinates
+    expect{new_game.check_if_snake_ate_food}.to change{new_game.snake.size}.from(4).to(5)
+    new_game.snake.parts[0] = new_game.food.coordinates
+    expect{new_game.check_snake_position}.to change{new_game.snake.size}.from(5).to(6)
+  end</p>
+
+<p>  it &ldquo;#compares pressed key&rdquo; do
+    expect(new_game.compare_key(65, &lsquo;a&rsquo;)).to be_truthy
+    expect(new_game.compare_key(65, &lsquo;A&rsquo;)).to be_truthy
+    expect(new_game.compare_key(65, &lsquo;Q&rsquo;)).to be_falsey
+  end</p>
+
+<p>  it &ldquo;#execute_action quit on Q&rdquo; do
+    expect(new_game.execute_action(&lsquo;q&rsquo;.ord)).to eql(false)
+  end</p>
+
+<p>  it &ldquo;#execute_action turn on a&rdquo; do
+    expect{new_game.execute_action(&rsquo;d'.ord)}.to change{new_game.snake.direction}.from(:left).to(:right)
+    expect(new_game.execute_action(&rsquo;d'.ord)).not_to be_nil
+  end
+end
+<code>
+So, now you have identified that your game will create the `Snake`, the `Board` and the `Food` object for you. Then it will be able to check Snake’s position. Checking the Snake’s positions consists of a few steps – to check, if the Snake has eaten itself or not, to check if the Snake has met at wall and to check, if the Snake has eaten food.
+Our game must be able to get a key from the keyboard and compare receiver’s value with some char that will turn the Snake or make some game actions. Comparing it, should execute some actions. For example, quit game on `Q` or turn snake on `d`.
+Now it’s time to see how this Ruby code will work!
+</code> ruby
+require &lsquo;io/console&rsquo;
+class Game
+  attr_reader :gameboard, :snake, :food
+  def initialize(max_x=11, max_y=11)
+    @gameboard = Board.new(max_x, max_y)
+    @snake = Snake.new(gameboard.width, gameboard.length)
+    @food = Food.new(gameboard.width, gameboard.length)
+  end</p>
+
+<p>  def print_board
+    system(&lsquo;clear&rsquo;)
+    puts &ldquo;Your size is: #{snake.size} |  [Q]uit&rdquo;
+    gameboard.board.each do
+      |line| puts line.each{|item| item}.join(&ldquo; &rdquo;)
+    end
+  end</p>
+
+<p>  def draw_food_and_snake
+    gameboard.create_board
+    @gameboard.board[food.x][food.y] = &lsquo;o&rsquo;
+    snake.parts.each do |part|
+      @gameboard.board[part.first][part.last] = &lsquo;x&rsquo;
+    end
+    print_board
+  end</p>
+
+<p>  def show_message(text)
+    gameboard.create_board
+    gameboard.print_text(text)
+    print_board
+  end</p>
+
+<p>  def show_start_screen
+    start = false
+    while start == false
+      show_message(&ldquo;[S]tart&rdquo;)
+      key = GetKey.getkey
+      sleep(0.5)
+      if key &amp;&amp; compare_key(key, &rsquo;s')
+        start = true
+      end
+    end
+  end</p>
+
+<p>  def check_snake_position
+    check_if_snake_met_wall
+    check_if_snake_ate_food
+    check_if_snake_ate_itself
+  end</p>
+
+<p>  def check_if_snake_ate_itself
+    if snake.body.include? snake.head
+      raise AteItselfError
+    end
+  end</p>
+
+<p>  def check_if_snake_met_wall
+    snake.update_head(1,0) if snake.head[1] &gt; gameboard.width-1
+    snake.update_head(1, gameboard.width-1) if snake.head[1]  gameboard.length-1
+    snake.update_head(0, gameboard.length-1) if snake.head[0] &lt; 0
+  end</p>
+
+<p>  def check_if_snake_ate_food
+    if snake.head[0] == food.x &amp;&amp; snake.head[1] == food.y
+      snake.increase
+      @food = Food.new(gameboard.width, gameboard.length)
+    end
+  end</p>
+
+<p>  def start
+    show_start_screen
+    begin
+      tick
+    rescue AteItselfError
+      show_message(&ldquo;Game over&rdquo;)
+    end
+  end</p>
+
+<p>  def tick
+    in_game = true
+    while in_game
+      draw_food_and_snake
+      sleep(0.1)
+      if key = GetKey.getkey
+        in_game = execute_action(key)
+      end
+      snake.step
+      check_snake_position
+    end
+    show_message(&ldquo;Game quit&rdquo;)
+  end</p>
+
+<p>  def execute_action key
+    return false if compare_key(key, &lsquo;q&rsquo;)
+    snake.turn(key)
+  end</p>
+
+<p>  def compare_key(key, char)
+    key.chr == char.downcase || key.chr == char.upcase
+  end
+end
+```</p>
+
+<p>Let’s walk through the code.</p>
+
+<ul>
+<li><code>initialize</code> – creates the <code>Snake</code>, the <code>Board</code> and the <code>Food</code> objects;;</li>
+<li><code>tick</code> – the main method that re-renders the Board and all objects in it, checks position, sets direction each 0.1 second. This value can be changed to increase or decrease speed of the game;</li>
+<li><code>print_board</code> – prints the game Board on the screen for each tick of time;</li>
+<li><code>draw_food_and_snake</code> – clears Board array and sets food and snake on it;</li>
+<li><code>show_message</code> – draws message on our Board;</li>
+<li><code>show_start_screen</code> – draws start screen;</li>
+<li><code>check_if_snake_ate_itself</code> – ends game, if the Snake ate itself;</li>
+<li><code>check_if_snake_met_wall</code> – updates head, if The Snake met the wall;</li>
+<li><code>check_if_snake_ate_food</code> – increases Snake’s size, if the Snake eats food and re-creates food;</li>
+<li><code>check_snake_position</code> – checks if snake met one of the positions above</li>
+<li><code>start</code> – method, which runs our game. Launches tick and ends game, if any error appears in the game (example: <code>AteItselfError</code>);</li>
+<li><code>execute_action</code> – executes an action on <code>keypress</code> by given keys;</li>
+<li><code>compare_key</code> – compares the given key and receives one from <code>stdin</code>.</li>
+</ul>
+
+
+<h2>GETTING KEYS PRESSED</h2>
+
+<p>You can see <code>GetKey</code> module, that I haven’t told you about. At the beginning of my development, I got into a situation that almost made me give up.
+I tried <code>STDIN.read_nonblock</code>, <code>STDIN.getc</code>, <code>gets</code> and other solutions, but none of them gave me the expected result. Fortunately, I found <a href="http://stackoverflow.com/questions/946738/detect-key-press-non-blocking-w-o-getc-gets-in-ruby">this question</a>, which had a solution to my problem. Now we don’t wait until the key is pressed, but continue rendering our game with the movement of the Snake. <code>GetKey</code> module is listed under <code>lib/get_key.rb</code></p>
+
+<h2>LET’S PLAY!</h2>
+
+<p>Finally, you can write the last Ruby file that will start our Game – <code>start.rb</code>
+<code>ruby
+Dir[File.expand_path('lib/*.rb', File.dirname(__FILE__))].each do |file|
+  require file
+end
+Dir[File.expand_path('lib/errors/*.rb', File.dirname(__FILE__))].each do |file|
+  require file
+end
+require 'pry'
+game = Game.new
+game.start
+</code>
+You should be requiring all game files as you did in <code>spec_helper</code> and creating a new game object using <code>Game.new</code>. <code>game.start</code> that will start your game.
+You should see something like this:</p>
+
+<p><a href="https://asciinema.org/a/a71jakx5dwtp4jy2962ef3sw8"><img src="/images/ruby_snake/abf5d12ac93fe44c9e8b8051fddf8ac3dd60f4d1.png"></a></p>
+
+<h2>CONCLUSION</h2>
+
+<p>We have created a good base for a simple Snake Game that now can be extended with different features. I’ve played a bit with code and found that it is easy to create:</p>
+
+<ul>
+<li><p>a common Snake Game with walls:
+<img src="/images/ruby_snake/Screenshot-from-2016-08-18-012212.png"></p></li>
+<li><p>Snake Game for two players and for playing with computer opponent:
+<img src="/images/ruby_snake/Screenshot-from-2016-08-18-013530.png"></p></li>
+<li><p>Snake Game with different ‘enemies’ that can hurt you:
+<img src="/images/ruby_snake/Screenshot-from-2016-08-18-012806.png"></p></li>
+<li><p>and many more&hellip;</p></li>
+</ul>
+
+
+<p><a href="https://github.com/AKovtunov/ruby_snake">sources are here</a></p>
+
+<h1 align="center">Enjoy the game!</h1>
+
+]]></content>
+  </entry>
+  
+</feed>

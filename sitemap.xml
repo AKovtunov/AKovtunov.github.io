@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://akovtunov.github.io/blog/2017/04/23/gamedev-on-ruby-why-not/</loc>
+<lastmod>2017-04-23T12:18:04+02:00</lastmod>
+</url>
+<url>
 <loc>http://akovtunov.github.io/blog/2017/04/23/react-native-in-one-day-android-application-for-tracking-your-spends-with-google-maps-support/</loc>
 <lastmod>2017-04-23T00:32:26+02:00</lastmod>
 </url>
@@ -36,5 +40,32 @@
 </url>
 <url>
 <loc>http://akovtunov.github.io/blog/categories/first-application/</loc>
+</url>
+<url>
+<loc>http://akovtunov.github.io/blog/categories/ruby/</loc>
+</url>
+<url>
+<loc>http://akovtunov.github.io/blog/categories/gamedev/</loc>
+</url>
+<url>
+<loc>http://akovtunov.github.io/blog/categories/snake/</loc>
+</url>
+<url>
+<loc>http://akovtunov.github.io/blog/categories/games/</loc>
+</url>
+<url>
+<loc>http://akovtunov.github.io/blog/categories/game-development/</loc>
+</url>
+<url>
+<loc>http://akovtunov.github.io/blog/categories/snake-game/</loc>
+</url>
+<url>
+<loc>http://akovtunov.github.io/blog/categories/rspec/</loc>
+</url>
+<url>
+<loc>http://akovtunov.github.io/blog/categories/tdd/</loc>
+</url>
+<url>
+<loc>http://akovtunov.github.io/blog/categories/test-driven-development/</loc>
 </url>
 </urlset>
