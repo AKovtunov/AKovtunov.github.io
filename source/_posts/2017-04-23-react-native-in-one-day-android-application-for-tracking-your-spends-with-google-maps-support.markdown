@@ -9,7 +9,7 @@ categories: "reactjs, javascript, react-native, google-maps, android, sample, ex
 {% img center /images/react_maps/title_image.png %}
 
 Usually I travel a lot by my car and make blog posts about it. And usually readers ask me about the mileage, gas consumption and other useful information. So I have decided to create a simple application, where I would be able to save all this information just in few clicks, without any registrations, advertisements and big tracking applications. I’ve never written any Android application and I wanted to take a look at the React library, so react-native was the best choice for me.
-
+<!--more-->
 ## BASIC SETUPS
 
 I don’t want to write another guide about how to set up react-native and Android studio. All the information about the installation steps is described [here](https://facebook.github.io/react-native/docs/getting-started.html "React-Native Docs"). Just don’t forget to turn on `KVM` in bios, if your system supports it.
