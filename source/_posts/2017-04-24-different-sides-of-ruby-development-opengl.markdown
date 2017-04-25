@@ -331,3 +331,9 @@ gluLookAt(400, 400, 400, 0, 0, 0, 0, 1, 0)
 `gluLookAt` sets our camera to point (x = 400, y = 400, z = 400) and looks at point (x = 0, y = 0, z = 0), three other coordinates of `up` vector that we will not touch for now.
 
 {% img /images/ruby_opengl/diatom_opengl-12.jpg %}
+
+Let’s play with gluPerspective a bit now.
+`gluPerspective(130, width.to_f/height, 0.001, 225)`
+
+
+s
