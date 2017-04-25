@@ -1,0 +1,725 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Opengl, | Knowledge Gathering]]></title>
+  <link href="http://akovtunov.github.io/blog/categories/opengl/atom.xml" rel="self"/>
+  <link href="http://akovtunov.github.io/"/>
+  <updated>2017-04-26T00:23:48+02:00</updated>
+  <id>http://akovtunov.github.io/</id>
+  <author>
+    <name><![CDATA[Alexandr Kovtunov]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Different Sides of Ruby Development: OpenGL]]></title>
+    <link href="http://akovtunov.github.io/blog/2017/04/24/different-sides-of-ruby-development-opengl/"/>
+    <updated>2017-04-24T12:03:59+02:00</updated>
+    <id>http://akovtunov.github.io/blog/2017/04/24/different-sides-of-ruby-development-opengl</id>
+    <content type="html"><![CDATA[<blockquote><p>This is a copy of my <a href="http://www.diatomenterprises.com/different-sides-of-ruby-development-opengl/">original post for Diatom Enterprises</a></p></blockquote>
+
+<p>When I’m trying to take a break from web development, I like to build something new and uncommon in Ruby programming. Ruby is typically known for web services, APIs and other web-related development. But with some time, you can build many other types of software.
+Different sides of Ruby development: OpenGL</p>
+
+<p><img src="/images/ruby_opengl/blan_eeeeee1.jpg"></p>
+
+<p>After creating , I started researching Ruby applications that use 3D graphics. I found a nice library, <a href="https://github.com/larskanis/opengl">OpenGL for Ruby</a>, and created a few samples with it. At first, it can be difficult to understand everything, but let’s see what can we do!</p>
+
+<!--more-->
+
+
+<p>To start working with <code>OpenGL</code> for Ruby, we only need two gems:
+<code>Gemfile.rb</code>:</p>
+
+<pre><code class="ruby">source "https://rubygems.org"
+gem "gosu"
+gem "opengl"
+</code></pre>
+
+<p>I chose <a href="https://github.com/tianon/gosu">gosu</a> because it provides good functionality to work with windows, players and partial rendering of window objects.</p>
+
+<h2>LET’S CREATE SOMETHING SIMPLE!</h2>
+
+<p>Sometimes it’s hard to imagine how everything should look in 3D, so for the first step, I chose to draw an axis instead of a simple cube.
+This is a good way to see how our coordinates lie on the three-dimensional grid. Also, we will set the color of the lines to define where the <code>x</code>, <code>y</code> and <code>z</code> coordinates are.
+I suggest that you separate objects into different classes that will stay under the <code>objects/</code> directory. So <code>media/axis.rb</code> will contain:
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Axis</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:x_width</span><span class="p">,</span> <span class="ss">:y_width</span><span class="p">,</span> <span class="ss">:z_width</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  def initialize(x_width, y_width, z_width)</span>
+</span><span class='line'><span class="sr">    @x_width = x_width</span>
+</span><span class='line'><span class="sr">    @y_width = y_width</span>
+</span><span class='line'><span class="sr">    @z_width = z_width</span>
+</span><span class='line'><span class="sr">  end&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">draw</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="n">z_width</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">object</span> <span class="o">=</span> <span class="kp">new</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="n">z_width</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">object</span><span class="o">.</span><span class="n">draw</span>
+</span><span class='line'>  <span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  def draw</span>
+</span><span class='line'><span class="sr">    glBegin(GL_LINES)</span>
+</span><span class='line'><span class="sr">      glColor3d(1, 0, 0)</span>
+</span><span class='line'><span class="sr">      glVertex3d(0, 0, 0)</span>
+</span><span class='line'><span class="sr">      glVertex3d(x_width, 0, 0)</span>
+</span><span class='line'><span class="sr">      glColor3d(0, 1, 0)</span>
+</span><span class='line'><span class="sr">      glVertex3d(0, 0, 0)</span>
+</span><span class='line'><span class="sr">      glVertex3d(0, y_width, 0)</span>
+</span><span class='line'><span class="sr">      glColor3d(0, 0, 1)</span>
+</span><span class='line'><span class="sr">      glVertex3d(0, 0, 0)</span>
+</span><span class='line'><span class="sr">      glVertex3d(0, 0, z_width)</span>
+</span><span class='line'><span class="sr">    glEnd</span>
+</span><span class='line'><span class="sr">  end</span>
+</span><span class='line'><span class="sr">end</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>All the OpenGL magic happens in the draw action. <code>glBegin</code> and <code>glEnd</code> works like a ruby block where in argument you need to send the type of object that you want to draw in the argument. You can find all the types in the <a href="https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/glBegin.xml">official documentation</a>.
+Inside this block you set the lines and their color. This sets the color for all the lines that you will draw after method <code>glColor3d</code>. There are lots of different implementations of the <code>glColor</code> method that differ only by the type of argument.<code>glColor3d</code> takes arguments in <code>GLdouble</code>, <code>glColor3f</code>, <code>GLfloat</code>, etc. <code>glColor3d</code> takes three arguments – red, green and blue values. <code>glColor4*</code> can also take an alpha value.
+To draw a line, you need to set two points, and OpenGL will draw a line between them. To do this, you need to call <code>glVertex</code>. You can pass two to four arguments of different types, depending on the method you are trying to call. In our case, we are sending the <code>x</code>, <code>y</code> and <code>z</code> coordinates of our future points. You can set as many lines in your <code>glBegin…glEnd</code> block as you wish. In my example, I’m drawing lines from the beginning of the axis (x = 0, y = 0, z = 0) to (x = <code>x_width</code>, y = <code>y_width</code>, z = <code>z_width</code>) in pixels.</p>
+
+<pre><code class="ruby">require 'opengl'
+require 'glu'
+require 'gosu'
+Dir["objects/*"].each {|file| require_relative file }
+include Gl, Glu
+
+class Window &lt; Gosu::Window
+
+  def initialize
+    super 800, 600
+    self.caption = "Diatom's OpenGL Tutorial"
+  end
+
+  def update
+  end
+
+  def draw
+    gl do
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+      Axis.draw(100, 100, 100)
+    end
+  end
+
+  def button_down(id)
+    exit if id == Gosu::KbEscape
+  end
+end
+
+Window.new.show
+</code></pre>
+
+<p><code>glClear</code> clears buffers to preset values. After that we call <code>Axis.draw</code> to draw our axis.</p>
+
+<p><img src="/images/ruby_opengl/diatom_opengl-4.jpg"></p>
+
+<p>As you can see, we can’t find an <code>y</code> axis because there is a frame border in its place. So if you want, you can set start of the line from <code>(x = 1)</code> instead of <code>(x = 0)</code>.</p>
+
+<p><img src="/images/ruby_opengl/diatom_opengl-5.jpg"></p>
+
+<p>Here we see a problem: what if we want to draw a set different objects, but not from the top left corner? What if we want to move the center of the axes?</p>
+
+<h2>MOVING THE CENTER OF THE AXES</h2>
+
+<p>To move the center of the axes, we can use the <code>glTranslate</code> method. It multiplies the current matrix by a translation matrix and produces a translation by x, y, z. All the objects after the <code>glTranslate</code> method will be drawn depending on those coordinates. To work with both translated and normal coordinates, we need to use the <code>glPushMatrix</code> and <code>glPopMatrix</code> methods, which will save the previous matrix and restore it. <code>glTranslate</code> produces different methods – <code>glTranslated(x, y, z)</code>, <code>glTranslatef(x, y, z)</code> etc. – where <code>x</code>, <code>y</code> and <code>z</code> are the coordinates of a translation vector.
+Let’s update our code using this method.</p>
+
+<pre><code class="ruby">def draw
+ gl do
+   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+   glPushMatrix
+     glTranslated(width/2, height/2, 0)
+     Axis.draw(100, 100, 100)
+   glPopMatrix
+ end
+end
+</code></pre>
+
+<p><img src="/images/ruby_opengl/diatom_opengl-6.jpg"></p>
+
+<p>As we can now see, our axis moved to the center of our screen. To see the difference and how <code>glPushMatrix</code> and <code>glPopMatrix</code> work, let’s add the previous axis too.</p>
+
+<pre><code class="ruby">def draw
+  gl do
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+    glPushMatrix
+      glTranslated(width/2, height/2, 0)
+      Axis.draw(100, 100, 100)
+    glPopMatrix
+
+    glEnable(GL_LINE_STIPPLE)
+    glLineStipple(2,0x00FF)
+
+    Axis.draw(100, 100, 100)
+    glDisable(GL_LINE_STIPPLE)
+  end
+end
+</code></pre>
+
+<p><img src="/images/ruby_opengl/diatom_opengl-3.jpg"></p>
+
+<p>As you can see, the previous axis was drawn on the (0, 0, 0) coordinates with the stippled lines without any change to <code>axis.rb</code> or its coordinates.
+It seems like we forgot about the z coordinate that we can’t see on our flat screen. To take a look at it, we need to use a viewpoint.</p>
+
+<h2>GETTING INTO THE REAL 3D WORLD</h2>
+
+<p>At first, I suggest that you build another object on our scene – a cube. It will help us to see the difference between the angles of our viewpoint.
+To draw it, we can use <code>GL_QUADS</code>. Each of the four points defines a Quad, so to make a cube we need six Quads = 24 points.
+<code>objects/cube.rb</code>:</p>
+
+<pre><code class="ruby">require 'pry'
+class Cube
+  attr_reader :x_width, :y_width, :z_width, :mode, :mode_face
+
+  def initialize(x_width, y_width, z_width, mode_face, mode)
+    @x_width = x_width
+    @y_width = y_width
+    @z_width = z_width
+    @mode = mode
+    @mode_face = mode_face
+  end
+
+  def self.draw(x_width, y_width, z_width, mode_face = GL_FRONT_AND_BACK, mode = GL_FILL)
+    object = new(x_width, y_width, z_width, mode_face, mode)
+    object.draw
+  end
+
+  def draw
+    glPolygonMode(mode_face, mode);
+    glBegin(GL_QUADS)
+      #yx
+      glColor3d(1, 0, 0)
+      glVertex3d(0, 0, 0)
+      glVertex3d(x_width, 0, 0)
+      glVertex3d(x_width, y_width, 0)
+      glVertex3d(0, y_width, 0)
+      #yz
+      glColor3d(0, 1, 0)
+      glVertex3d(0, y_width, 0)
+      glVertex3d(0, 0, 0)
+      glVertex3d(0, 0, z_width)
+      glVertex3d(0, y_width, z_width)
+      #zx
+      glColor3d(0, 0, 1)
+      glVertex3d(0, 0, z_width)
+      glVertex3d(0, 0, 0)
+      glVertex3d(x_width, 0, 0)
+      glVertex3d(x_width, 0, z_width)
+      #z -&gt; yx
+      glColor3d(1, 0, 0)
+      glVertex3d(0, 0, z_width)
+      glVertex3d(x_width, 0, z_width)
+      glVertex3d(x_width, y_width, z_width)
+      glVertex3d(0, y_width, z_width)
+      #x -&gt; yz
+      glColor3d(0, 1, 0)
+      glVertex3d(x_width, y_width, 0)
+      glVertex3d(x_width, 0, 0)
+      glVertex3d(x_width, 0, z_width)
+      glVertex3d(x_width, y_width, z_width)
+      #y -&gt; zx
+      glColor3d(0, 0, 1)
+      glVertex3d(0, y_width, z_width)
+      glVertex3d(0, y_width, 0)
+      glVertex3d(x_width, y_width, 0)
+      glVertex3d(x_width, y_width, z_width)
+    glEnd
+  end
+end
+</code></pre>
+
+<p>I’ve added two new variables – arguments for <code>glPolygonMode</code> that set a <code>rasterization</code> mode. The arguments are face (front, back) and mode (<code>GL_POINT</code>, <code>GL_LINE</code>, <code>GL_FILL</code>).
+Let’s also update our axes and move code that defines their line types inside.</p>
+
+<p><code>objects/axis.rb</code>:</p>
+
+<pre><code class="ruby">class Axis
+  attr_reader :x_width, :y_width, :z_width, :stipple
+
+  def initialize(x_width, y_width, z_width, stipple = false)
+    @x_width = x_width
+    @y_width = y_width
+    @z_width = z_width
+    @stipple = stipple
+  end
+
+  def self.draw(x_width, y_width, z_width, stipple = false)
+    object = new(x_width, y_width, z_width, stipple)
+    object.draw
+  end
+
+  def draw
+    if stipple
+      glEnable(GL_LINE_STIPPLE)
+      glLineStipple(2,0x00FF)
+    end
+    glBegin(GL_LINES)
+      ...
+    glEnd
+    glDisable(GL_LINE_STIPPLE) if stipple
+  end
+end
+</code></pre>
+
+<p>Let’s update our code to use our new cubes.</p>
+
+<pre><code class="ruby">def draw
+  gl do
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+    glPushMatrix
+      glTranslated(width/2, height/2, 0)
+      Axis.draw(100, 100, 100)
+      Cube.draw(50, 50, 50, GL_FRONT_AND_BACK, GL_LINE)
+    glPopMatrix
+
+    Cube.draw(50, 50, 50, GL_FRONT_AND_BACK, GL_LINE)
+
+    Axis.draw(100, 100, 100, true)
+  end
+end
+</code></pre>
+
+<p><img src="/images/ruby_opengl/diatom_opengl-9.jpg"></p>
+
+<p>Looks clear, doesn’t it?
+To add perspective, we need to use the <code>gluPerspective</code> method, which is used to set up a perspective projection. It’s done once to set up how the scene will be rendered. If <code>gluPerspective</code> is used, the perspective correction will happen while rendering. The arguments are angle of view, aspect ratio, z-near and z-far.</p>
+
+<p><img src="/images/ruby_opengl/Untitled-drawing-1.jpg"></p>
+
+<p>So, let’s add perspective to our application.</p>
+
+<pre><code class="ruby">def draw
+  gl do
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    gluPerspective(130, width.to_f/height, 0, 500)
+    glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
+
+    glPushMatrix
+      glTranslated(width/2, height/2, 0)
+      Axis.draw(100, 100, 100)
+      Cube.draw(50, 50, 50, GL_FRONT_AND_BACK, GL_LINE)
+    glPopMatrix
+
+    Cube.draw(50, 50, 50, GL_FRONT_AND_BACK, GL_LINE)
+
+    Axis.draw(100, 100, 100, true)
+  end
+end
+</code></pre>
+
+<p><img src="/images/ruby_opengl/diatom_opengl-10.jpg"></p>
+
+<p>We can see that our field of view has been updated, and we can see only part of our (0, 0, 0) cube and axis. To see what <code>gluPerspective</code> really changes, let’s add a viewpoint.</p>
+
+<p>To turn the player, OpenGL developers usually build a matrix of the view, load it and use later to turn the entire scene around the player. To simplify our code, we will create a ‘camera’ object that will help us look at the whole scene. To do this, we will use <code>gluLookAt</code>.</p>
+
+<p><img src="/images/ruby_opengl/Untitled-123.jpg"></p>
+
+<p>If we don’t set <code>gluLookAt</code>, OpenGL will automatically set it to (x = 0, y = 0, z = 0). Looking at our screen, that will be equal to <code>gluLookAt(0, 0, 1, 0, 0, 0, 0, 1, 0)</code>. So, let’s set our <code>gluLookAt</code> properly, so we can see our scene.</p>
+
+<pre><code class="ruby">glMatrixMode(GL_MODELVIEW)
+glLoadIdentity()
+gluLookAt(400, 400, 400, 0, 0, 0, 0, 1, 0)
+</code></pre>
+
+<p><code>gluLookAt</code> sets our camera to point (x = 400, y = 400, z = 400) and looks at point (x = 0, y = 0, z = 0), three other coordinates of <code>up</code> vector that we will not touch for now.</p>
+
+<p><img src="/images/ruby_opengl/diatom_opengl-12.jpg"></p>
+
+<p>Let’s play with gluPerspective a bit now.
+<code>gluPerspective(130, width.to_f/height, 0.001, 225)</code></p>
+
+<p><img src="/images/ruby_opengl/diatom_opengl-21_2.jpg">
+<img src="/images/ruby_opengl/diatom_opengl-23_2.jpg">
+<img src="/images/ruby_opengl/diatom_opengl-24_2.jpg"></p>
+
+<p>What if we want to move the camera and see the other sides of our scene? Here <code>gosu</code> helps with its built-in I\O mechanisms.</p>
+
+<h2>MOVING THE CAMERA</h2>
+
+<p>As you noticed, we can change all of the arguments of the <code>gluLookAt</code> method. To move our camera, we need to bind those changes to the keyboard.
+I will not explain the difficult math behind the matrixes and real turning of cameras as it was made in games\applications through formulas of radiuses and angles. I want to move our camera only through axes. I know that it’s not the best solution, but it’s the easiest for understanding.
+Let’s move our <code>gluLookAt</code> method inside the new camera object that will be in <code>objects/camera.rb</code></p>
+
+<pre><code class="ruby">class Camera
+  attr_reader :camera_position, :look_at_object_position, :window, :speed
+
+  def initialize(window)
+    @window = window
+    @camera_position = Vector3.new(400, 400, 400)
+    @look_at_object_position = Vector3.new(0, 0, 0)
+    @speed = 10
+  end
+
+  def capture
+    font = Gosu::Font.new(window, Gosu::default_font_name, 20)
+    button_down
+    font.draw("Camera position: #{camera_position.x}:#{camera_position.y}:#{camera_position.z}", 10, 10, 3.0, 1.0, 1.0, 0xffffffff)
+    font.draw("Look at position: #{look_at_object_position.x}:#{look_at_object_position.y}:#{look_at_object_position.z}", 10, 25, 3.0, 1.0, 1.0, 0xffffffff)
+    font.draw("Your speed: #{speed}", 10, 40, 3.0, 1.0, 1.0, 0xffffffff)
+    gluLookAt(camera_position.x, camera_position.y, camera_position.z, look_at_object_position.x, look_at_object_position.y, look_at_object_position.z, 0, 1, 0)
+  end
+
+  def button_down
+    @camera_position.x += speed if Gosu::button_down?(Gosu::KbRight) &amp;amp;&amp;amp; !Gosu::button_down?(Gosu::KB_LEFT_SHIFT)
+    @camera_position.x -= speed if Gosu::button_down?(Gosu::KbLeft) &amp;amp;&amp;amp; !Gosu::button_down?(Gosu::KB_LEFT_SHIFT)
+    @camera_position.y += speed if Gosu::button_down?(Gosu::KbUp) &amp;amp;&amp;amp; !Gosu::button_down?(Gosu::KB_LEFT_SHIFT)
+    @camera_position.y -= speed if Gosu::button_down?(Gosu::KbDown) &amp;amp;&amp;amp; !Gosu::button_down?(Gosu::KB_LEFT_SHIFT)
+    @camera_position.z += speed if Gosu::button_down?(Gosu::KB_NUMPAD_8) &amp;amp;&amp;amp; !Gosu::button_down?(Gosu::KB_LEFT_SHIFT)
+    @camera_position.z -= speed if Gosu::button_down?(Gosu::KB_NUMPAD_2) &amp;amp;&amp;amp; !Gosu::button_down?(Gosu::KB_LEFT_SHIFT)
+
+    @look_at_object_position.x += speed if Gosu::button_down?(Gosu::KbRight) &amp;amp;&amp;amp; Gosu::button_down?(Gosu::KB_LEFT_SHIFT)
+    @look_at_object_position.x -= speed if Gosu::button_down?(Gosu::KbLeft) &amp;amp;&amp;amp; Gosu::button_down?(Gosu::KB_LEFT_SHIFT)
+    @look_at_object_position.y += speed if Gosu::button_down?(Gosu::KbUp) &amp;amp;&amp;amp; Gosu::button_down?(Gosu::KB_LEFT_SHIFT)
+    @look_at_object_position.y -= speed if Gosu::button_down?(Gosu::KbDown) &amp;amp;&amp;amp; Gosu::button_down?(Gosu::KB_LEFT_SHIFT)
+    @look_at_object_position.z += speed if Gosu::button_down?(Gosu::KB_NUMPAD_8) &amp;amp;&amp;amp; Gosu::button_down?(Gosu::KB_LEFT_SHIFT)
+    @look_at_object_position.z -= speed if Gosu::button_down?(Gosu::KB_NUMPAD_2) &amp;amp;&amp;amp; Gosu::button_down?(Gosu::KB_LEFT_SHIFT)
+  end
+end
+</code></pre>
+
+<p>To understand how everything works, I bind each axis to a key. Here is the schema to move the camera:</p>
+
+<pre><code class="text">UP, DOWN - by Y axis
+LEFT, RIGHT - by X axis
+NUM8, NUM2 - by Z axis
+</code></pre>
+
+<p>To move the target point, you need to hold shift, clicking on the same buttons.
+I can display the current coordinates of points and the current camera speed using gosu’s text output methods. To do this, we need to pass a ‘window’ object into our class and work with it. For camera position, I wrote a <code>Vector3</code> class that contains x, y and z coordinates:
+<code>objects/vector3.rb</code>:</p>
+
+<pre><code class="ruby">Vector3 = Struct.new(:x, :y, :z)
+</code></pre>
+
+<p>After we build our camera class, let’s use it inside <code>run.rb</code>:</p>
+
+<pre><code class="ruby">def draw
+  gl do
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    gluPerspective(90, width.to_f/height, 0, 500)
+    glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
+
+    @camera.capture
+
+    glPushMatrix
+      glTranslated(width/2, height/2, 0)
+      Axis.draw(100, 100, 100)
+      Cube.draw(50, 50, 50, GL_FRONT_AND_BACK, GL_LINE)
+    glPopMatrix
+
+    Cube.draw(50, 50, 50, GL_FRONT_AND_BACK, GL_FILL)
+
+    Axis.draw(100, 100, 100, true)
+
+  end
+end
+</code></pre>
+
+<p>‘Fly’ a bit on our scene to see how <code>gluLookAt</code> works.
+I suggest rewriting the keyboard settings a bit to make them more useful. Also, I want to be able to increase our camera’s speed. For this I want to rewrite the camera object:
+<code>objects/camera.rb</code></p>
+
+<pre><code class="ruby">def button_down
+  check_speed
+  case
+  when Gosu::button_down?(Gosu::KbD)
+    @camera_position.x += speed
+    @look_at_object_position.x += speed
+  when Gosu::button_down?(Gosu::KbA)
+    @camera_position.x -= speed
+    @look_at_object_position.x -= speed
+  when Gosu::button_down?(Gosu::KbW)
+    @camera_position.z -= speed
+    @look_at_object_position.z -= speed
+  when Gosu::button_down?(Gosu::KbS)
+    @camera_position.z += speed
+    @look_at_object_position.z += speed
+  when Gosu::button_down?(Gosu::KbUp)
+    @look_at_object_position.y += speed
+  when Gosu::button_down?(Gosu::KbDown)
+    @look_at_object_position.y -= speed
+  when Gosu::button_down?(Gosu::KbRight)
+    @look_at_object_position.x += speed
+  when Gosu::button_down?(Gosu::KbLeft)
+    @look_at_object_position.x -= speed
+  end
+end
+
+def check_speed
+  @speed = 10
+  @speed = 20 if Gosu::button_down?(Gosu::KB_LEFT_SHIFT)
+end
+</code></pre>
+
+<p>Let’s use the W and S keys to move the camera on the z axis, A and D to move the camera on the x axis, UP and DOWN to move the target of view on the y axis and LEFT and RIGHT to move the target of view on the x axis. Holding shift will increase our speed.</p>
+
+<h2>LET’S PLAY!</h2>
+
+<p>Let’s add a cube object filled with lines to our pointer. To do this, we need to update our cube code to receive the current coordinates and build a cube depending on them.
+<code>objects/cube.rb</code> :</p>
+
+<pre><code class="ruby">require 'pry'
+class Cube
+  attr_reader :position, :x_width, :y_width, :z_width, :mode, :mode_face
+
+  def initialize(x_width, y_width, z_width, mode_face, mode, x = 0, y = 0, z = 0)
+    @x_width = x_width
+    @y_width = y_width
+    @z_width = z_width
+    @mode = mode
+    @mode_face = mode_face
+    @position = Vector3.new(x, y, z)
+  end
+
+  def self.draw(x_width, y_width, z_width, mode_face = GL_FRONT_AND_BACK, mode = GL_FILL, x = 0, y = 0, z = 0)
+    object = new(x_width, y_width, z_width, mode_face, mode, x, y, z)
+    object.draw
+  end
+
+  def draw
+    glPolygonMode(mode_face, mode);
+    glBegin(GL_QUADS)
+      #yx
+      glColor3d(1, 0, 0)
+      glVertex3d(position.x, position.y, position.z)
+      glVertex3d(x_width + position.x, position.y, position.z)
+      glVertex3d(x_width + position.x, y_width + position.y, position.z)
+      glVertex3d(position.x, y_width + position.y, position.z)
+      #yz
+      glColor3d(0, 1, 0)
+      glVertex3d(position.x, y_width + position.y, position.z)
+      glVertex3d(position.x, position.y, position.z)
+      glVertex3d(position.x, position.y, z_width + position.z)
+      glVertex3d(position.x, y_width + position.y, z_width + position.z)
+      #zx
+      glColor3d(0, 0, 1)
+      glVertex3d(position.x, position.y, z_width + position.z)
+      glVertex3d(position.x, position.y, position.z)
+      glVertex3d(x_width + position.x, position.y, position.z)
+      glVertex3d(x_width + position.x, position.y, z_width + position.z)
+      #z -&amp;gt; yx
+      glColor3d(1, 0, 0)
+      glVertex3d(position.x, position.y, z_width + position.z)
+      glVertex3d(x_width + position.x, position.y, z_width + position.z)
+      glVertex3d(x_width + position.x, y_width + position.y, z_width + position.z)
+      glVertex3d(position.x, y_width + position.y, z_width + position.z)
+      #x -&amp;gt; yz
+      glColor3d(0, 1, 0)
+      glVertex3d(x_width + position.x, y_width + position.y, position.z)
+      glVertex3d(x_width + position.x, position.y, position.z)
+      glVertex3d(x_width + position.x, position.y, z_width + position.z)
+      glVertex3d(x_width + position.x, y_width + position.y, z_width + position.z)
+      #y -&amp;gt; zx
+      glColor3d(0, 0, 1)
+      glVertex3d(position.x, y_width + position.y, z_width + position.z)
+      glVertex3d(position.x, y_width + position.y, position.z)
+      glVertex3d(x_width + position.x, y_width + position.y, position.z)
+      glVertex3d(x_width + position.x, y_width + position.y, z_width + position.z)
+
+      glColor3d(1, 1, 1) #return back primary color
+    glEnd
+  end
+end
+</code></pre>
+
+<p>Now we can update our main window’s method draw with this code</p>
+
+<pre><code class="ruby">glPushMatrix
+ glTranslated(width/2, height/2, 0)
+ Axis.draw(100, 100, 100)
+ Cube.draw(50, 50, 50, GL_FRONT_AND_BACK, GL_FILL)
+ Cube.draw(50, 50, 50, GL_FRONT_AND_BACK, GL_LINE, @camera.look_at_object_position.x, @camera.look_at_object_position.y, @camera.look_at_object_position.z)
+glPopMatrix
+</code></pre>
+
+<p>At the end, you should see this view:</p>
+
+<p><img src="/images/ruby_opengl/diatom_opengl-14.jpg"></p>
+
+<h2>CUBE CREATOR</h2>
+
+<p>What if we want to place some new cubes? Easy!
+Let’s change our <code>run.rb</code> code to</p>
+
+<pre><code class="ruby">require 'opengl'
+require 'glu'
+require 'gosu'
+
+Dir["objects/*"].each {|file| require_relative file }
+
+include Gl, Glu
+
+class Window &lt; Gosu::Window
+
+  attr_accessor :scene_objects, :translation
+
+  def initialize
+    super 800, 600
+    self.caption = "Diatom's OpenGL Tutorial"
+    @camera = Camera.new(self)
+    @scene_objects = []
+    @translation = Vector3.new(width/2, height/2,0)
+  end
+
+  def update
+  end
+
+  def draw
+    gl do
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+      glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        gluPerspective(90, width.to_f/height, 0, 500)
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+      @camera.capture
+
+      @scene_objects &lt;&lt; Axis.new(100, 100, 100)
+      @scene_objects &lt;&lt; Cube.new(50, 50, 50, GL_FRONT_AND_BACK, GL_FILL)
+
+      glPushMatrix
+        glTranslated(translation.x, translation.y, translation.z)
+        @scene_objects.each do |object|
+          object.draw
+        end
+      glPopMatrix
+      Cube.draw(50, 50, 50, GL_FRONT_AND_BACK, GL_LINE, @camera.look_at_object_position.x, @camera.look_at_object_position.y, @camera.look_at_object_position.z)
+
+      Cube.draw(50, 50, 50, GL_FRONT_AND_BACK, GL_FILL)
+
+      Axis.draw(100, 100, 100, true)
+    end
+  end
+
+  def button_down(id)
+    exit if id == Gosu::KbEscape
+    add_cube if id == Gosu::KbSpace
+  end
+  def add_cube
+    @scene_objects &lt;&lt; Cube.new(
+      50, 50, 50,
+      GL_FRONT_AND_BACK, GL_FILL,
+      @camera.look_at_object_position.x - translation.x, @camera.look_at_object_position.y - translation.y, @camera.look_at_object_position.z - translation.z
+    )
+  end
+end
+
+Window.new.show
+</code></pre>
+
+<p>As you will notice, I moved the translation vector to the variable of Vector3 class, moved all objects that will be translated and drawn on the scene to the array <code>@scene_objects</code> and then placed them on the scene with a loop.
+To add a new cube, I can just create a new cube object and place it in the array. Coordinates should depend on the translation vector to place everything on valid places.</p>
+
+<p><img src="/images/ruby_opengl/diatom_opengl-28.jpg"></p>
+
+<p>Let’s add some textures. We can create a gosu image object from file and then get texture information from it with the <code>gl_tex_info</code> method. To build it, let’s add a class <code>texture</code>.</p>
+
+<pre><code class="ruby">class Texture
+  attr_accessor :info
+  def initialize(window, filepath)
+    @image = Gosu::Image.new(window, filepath, {tileable: true, retro: false})
+    @info = @image.gl_tex_info
+    # gl_tex_info can return nil if the image was too large to fit onto
+    # a single OpenGL texture and was internally split up.
+  end
+end
+</code></pre>
+
+<p>Then we will need to update our cube <code>draw</code> method with:
+<code>ruby
+texture_info = texture.info
+  glEnable(GL_TEXTURE_2D) # enables two-dimensional texturing to perform
+    glBindTexture(GL_TEXTURE_2D, texture_info.tex_name) # bing named texture to a target
+    glPixelStorei(GL_UNPACK_ALIGNMENT,1)
+    draw_textured_cube
+  glDisable(GL_TEXTURE_2D)
+</code></p>
+
+<p>where specify the texture’s edge that will be assigned to that point. Basically, the texture’s left bottom coordinates are (0, 0) and top right coordinates are (1, 1), and we stretch it between the edges of our cube. Code sample for one side:</p>
+
+<pre><code class="ruby">glTexCoord2d(0,0); glVertex3d(position.x, position.y, position.z)
+glTexCoord2d(1,0); glVertex3d(x_width + position.x, position.y, position.z)
+glTexCoord2d(1,1); glVertex3d(x_width + position.x, y_width + position.y, position.z)
+glTexCoord2d(0,1); glVertex3d(position.x, y_width + position.y, position.z)
+</code></pre>
+
+<p>By adding some lights with
+<code>ruby
+glEnable(GL_LIGHTING)
+  glLightfv(GL_LIGHT0, GL_AMBIENT, [0.5, 0.5, 0.5, 1])
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, [1, 1, 1, 1])
+  glLightfv(GL_LIGHT0, GL_POSITION, [1, 1, 1,1])
+  glLightfv(GL_LIGHT1, GL_AMBIENT, [0.5, 0.5, 0.5, 1])
+  glLightfv(GL_LIGHT1, GL_DIFFUSE, [1, 1, 1, 1])
+  glLightfv(GL_LIGHT1, GL_POSITION, [100, 100, 100,1])
+glEnable(GL_LIGHT0)
+</code>
+depth test to depth buffer comparisons
+<code>ruby
+glEnable(GL_DEPTH_TEST);
+glDepthMask(GL_TRUE);
+glDepthFunc(GL_LEQUAL);
+</code></p>
+
+<p>and textures with</p>
+
+<pre><code class="ruby">glEnable(GL_TEXTURE_2D) # enables two-dimensional texturing to perform
+glBindTexture(GL_TEXTURE_2D, texture_info.tex_name) # bing named texture to a target
+glPixelStorei(GL_UNPACK_ALIGNMENT,1)
+</code></pre>
+
+<p>we can build nice textured scene with real lighting.</p>
+
+<p><img src="/images/ruby_opengl/diatom_opengl.jpg"></p>
+
+<p>With some additional work, we can achieve a switch of material for blocks that we are trying to build and other nice things.</p>
+
+<p>Video: <a href="https://youtu.be/aKyR4a5SGbo">YouTube</a>
+All the code for that can be found at <a href="https://github.com/DiatomEnterprises/ruby_opengl">our repository on GitHub</a></p>
+
+<p>OpenGL is common everywhere and learning it once, you will be able to build projects with it on any language. The same is with Ruby. Just imagine something cool, and we can build it with Ruby!</p>
+]]></content>
+  </entry>
+  
+</feed>

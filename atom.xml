@@ -4,7 +4,7 @@
   <title><![CDATA[Knowledge Gathering]]></title>
   <link href="http://akovtunov.github.io/atom.xml" rel="self"/>
   <link href="http://akovtunov.github.io/"/>
-  <updated>2017-04-23T14:43:28+02:00</updated>
+  <updated>2017-04-26T00:23:48+02:00</updated>
   <id>http://akovtunov.github.io/</id>
   <author>
     <name><![CDATA[Alexandr Kovtunov]]></name>
@@ -12,6 +12,1181 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Different Sides of Ruby Development: OpenGL]]></title>
+    <link href="http://akovtunov.github.io/blog/2017/04/24/different-sides-of-ruby-development-opengl/"/>
+    <updated>2017-04-24T12:03:59+02:00</updated>
+    <id>http://akovtunov.github.io/blog/2017/04/24/different-sides-of-ruby-development-opengl</id>
+    <content type="html"><![CDATA[<blockquote><p>This is a copy of my <a href="http://www.diatomenterprises.com/different-sides-of-ruby-development-opengl/">original post for Diatom Enterprises</a></p></blockquote>
+
+<p>When I’m trying to take a break from web development, I like to build something new and uncommon in Ruby programming. Ruby is typically known for web services, APIs and other web-related development. But with some time, you can build many other types of software.
+Different sides of Ruby development: OpenGL</p>
+
+<p><img src="http://akovtunov.github.io/images/ruby_opengl/blan_eeeeee1.jpg"></p>
+
+<p>After creating , I started researching Ruby applications that use 3D graphics. I found a nice library, <a href="https://github.com/larskanis/opengl">OpenGL for Ruby</a>, and created a few samples with it. At first, it can be difficult to understand everything, but let’s see what can we do!</p>
+
+<!--more-->
+
+
+<p>To start working with <code>OpenGL</code> for Ruby, we only need two gems:
+<code>Gemfile.rb</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">source</span> <span class="s2">&quot;https://rubygems.org&quot;</span>
+</span><span class='line'><span class="n">gem</span> <span class="s2">&quot;gosu&quot;</span>
+</span><span class='line'><span class="n">gem</span> <span class="s2">&quot;opengl&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I chose <a href="https://github.com/tianon/gosu">gosu</a> because it provides good functionality to work with windows, players and partial rendering of window objects.</p>
+
+<h2>LET’S CREATE SOMETHING SIMPLE!</h2>
+
+<p>Sometimes it’s hard to imagine how everything should look in 3D, so for the first step, I chose to draw an axis instead of a simple cube.
+This is a good way to see how our coordinates lie on the three-dimensional grid. Also, we will set the color of the lines to define where the <code>x</code>, <code>y</code> and <code>z</code> coordinates are.
+I suggest that you separate objects into different classes that will stay under the <code>objects/</code> directory. So <code>media/axis.rb</code> will contain:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Axis</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:x_width</span><span class="p">,</span> <span class="ss">:y_width</span><span class="p">,</span> <span class="ss">:z_width</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="n">z_width</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@x_width</span> <span class="o">=</span> <span class="n">x_width</span>
+</span><span class='line'>    <span class="vi">@y_width</span> <span class="o">=</span> <span class="n">y_width</span>
+</span><span class='line'>    <span class="vi">@z_width</span> <span class="o">=</span> <span class="n">z_width</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">draw</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="n">z_width</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">object</span> <span class="o">=</span> <span class="kp">new</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="n">z_width</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">object</span><span class="o">.</span><span class="n">draw</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">draw</span>
+</span><span class='line'>    <span class="n">glBegin</span><span class="p">(</span><span class="no">GL_LINES</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glColor3d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glColor3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glColor3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z_width</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">glEnd</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>All the OpenGL magic happens in the draw action. <code>glBegin</code> and <code>glEnd</code> works like a ruby block where in argument you need to send the type of object that you want to draw in the argument. You can find all the types in the <a href="https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/glBegin.xml">official documentation</a>.
+Inside this block you set the lines and their color. This sets the color for all the lines that you will draw after method <code>glColor3d</code>. There are lots of different implementations of the <code>glColor</code> method that differ only by the type of argument.<code>glColor3d</code> takes arguments in <code>GLdouble</code>, <code>glColor3f</code>, <code>GLfloat</code>, etc. <code>glColor3d</code> takes three arguments – red, green and blue values. <code>glColor4*</code> can also take an alpha value.
+To draw a line, you need to set two points, and OpenGL will draw a line between them. To do this, you need to call <code>glVertex</code>. You can pass two to four arguments of different types, depending on the method you are trying to call. In our case, we are sending the <code>x</code>, <code>y</code> and <code>z</code> coordinates of our future points. You can set as many lines in your <code>glBegin…glEnd</code> block as you wish. In my example, I’m drawing lines from the beginning of the axis (x = 0, y = 0, z = 0) to (x = <code>x_width</code>, y = <code>y_width</code>, z = <code>z_width</code>) in pixels.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;opengl&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;glu&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;gosu&#39;</span>
+</span><span class='line'><span class="no">Dir</span><span class="o">[</span><span class="s2">&quot;objects/*&quot;</span><span class="o">].</span><span class="n">each</span> <span class="p">{</span><span class="o">|</span><span class="n">file</span><span class="o">|</span> <span class="n">require_relative</span> <span class="n">file</span> <span class="p">}</span>
+</span><span class='line'><span class="kp">include</span> <span class="no">Gl</span><span class="p">,</span> <span class="no">Glu</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Window</span> <span class="o">&lt;</span> <span class="no">Gosu</span><span class="o">::</span><span class="no">Window</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span>
+</span><span class='line'>    <span class="k">super</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">600</span>
+</span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">caption</span> <span class="o">=</span> <span class="s2">&quot;Diatom&#39;s OpenGL Tutorial&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">update</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">draw</span>
+</span><span class='line'>    <span class="n">gl</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">glClear</span><span class="p">(</span><span class="no">GL_COLOR_BUFFER_BIT</span> <span class="o">|</span> <span class="no">GL_DEPTH_BUFFER_BIT</span><span class="p">)</span>
+</span><span class='line'>      <span class="no">Axis</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">button_down</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+</span><span class='line'>    <span class="nb">exit</span> <span class="k">if</span> <span class="nb">id</span> <span class="o">==</span> <span class="no">Gosu</span><span class="o">::</span><span class="no">KbEscape</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Window</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">show</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>glClear</code> clears buffers to preset values. After that we call <code>Axis.draw</code> to draw our axis.</p>
+
+<p><img src="http://akovtunov.github.io/images/ruby_opengl/diatom_opengl-4.jpg"></p>
+
+<p>As you can see, we can’t find an <code>y</code> axis because there is a frame border in its place. So if you want, you can set start of the line from <code>(x = 1)</code> instead of <code>(x = 0)</code>.</p>
+
+<p><img src="http://akovtunov.github.io/images/ruby_opengl/diatom_opengl-5.jpg"></p>
+
+<p>Here we see a problem: what if we want to draw a set different objects, but not from the top left corner? What if we want to move the center of the axes?</p>
+
+<h2>MOVING THE CENTER OF THE AXES</h2>
+
+<p>To move the center of the axes, we can use the <code>glTranslate</code> method. It multiplies the current matrix by a translation matrix and produces a translation by x, y, z. All the objects after the <code>glTranslate</code> method will be drawn depending on those coordinates. To work with both translated and normal coordinates, we need to use the <code>glPushMatrix</code> and <code>glPopMatrix</code> methods, which will save the previous matrix and restore it. <code>glTranslate</code> produces different methods – <code>glTranslated(x, y, z)</code>, <code>glTranslatef(x, y, z)</code> etc. – where <code>x</code>, <code>y</code> and <code>z</code> are the coordinates of a translation vector.
+Let’s update our code using this method.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">draw</span>
+</span><span class='line'> <span class="n">gl</span> <span class="k">do</span>
+</span><span class='line'>   <span class="n">glClear</span><span class="p">(</span><span class="no">GL_COLOR_BUFFER_BIT</span> <span class="o">|</span> <span class="no">GL_DEPTH_BUFFER_BIT</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">glPushMatrix</span>
+</span><span class='line'>     <span class="n">glTranslated</span><span class="p">(</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>     <span class="no">Axis</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">glPopMatrix</span>
+</span><span class='line'> <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://akovtunov.github.io/images/ruby_opengl/diatom_opengl-6.jpg"></p>
+
+<p>As we can now see, our axis moved to the center of our screen. To see the difference and how <code>glPushMatrix</code> and <code>glPopMatrix</code> work, let’s add the previous axis too.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">draw</span>
+</span><span class='line'>  <span class="n">gl</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">glClear</span><span class="p">(</span><span class="no">GL_COLOR_BUFFER_BIT</span> <span class="o">|</span> <span class="no">GL_DEPTH_BUFFER_BIT</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">glPushMatrix</span>
+</span><span class='line'>      <span class="n">glTranslated</span><span class="p">(</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="no">Axis</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">glPopMatrix</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">glEnable</span><span class="p">(</span><span class="no">GL_LINE_STIPPLE</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">glLineStipple</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mh">0x00FF</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="no">Axis</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">glDisable</span><span class="p">(</span><span class="no">GL_LINE_STIPPLE</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://akovtunov.github.io/images/ruby_opengl/diatom_opengl-3.jpg"></p>
+
+<p>As you can see, the previous axis was drawn on the (0, 0, 0) coordinates with the stippled lines without any change to <code>axis.rb</code> or its coordinates.
+It seems like we forgot about the z coordinate that we can’t see on our flat screen. To take a look at it, we need to use a viewpoint.</p>
+
+<h2>GETTING INTO THE REAL 3D WORLD</h2>
+
+<p>At first, I suggest that you build another object on our scene – a cube. It will help us to see the difference between the angles of our viewpoint.
+To draw it, we can use <code>GL_QUADS</code>. Each of the four points defines a Quad, so to make a cube we need six Quads = 24 points.
+<code>objects/cube.rb</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;pry&#39;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Cube</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:x_width</span><span class="p">,</span> <span class="ss">:y_width</span><span class="p">,</span> <span class="ss">:z_width</span><span class="p">,</span> <span class="ss">:mode</span><span class="p">,</span> <span class="ss">:mode_face</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="n">z_width</span><span class="p">,</span> <span class="n">mode_face</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@x_width</span> <span class="o">=</span> <span class="n">x_width</span>
+</span><span class='line'>    <span class="vi">@y_width</span> <span class="o">=</span> <span class="n">y_width</span>
+</span><span class='line'>    <span class="vi">@z_width</span> <span class="o">=</span> <span class="n">z_width</span>
+</span><span class='line'>    <span class="vi">@mode</span> <span class="o">=</span> <span class="n">mode</span>
+</span><span class='line'>    <span class="vi">@mode_face</span> <span class="o">=</span> <span class="n">mode_face</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">draw</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="n">z_width</span><span class="p">,</span> <span class="n">mode_face</span> <span class="o">=</span> <span class="no">GL_FRONT_AND_BACK</span><span class="p">,</span> <span class="n">mode</span> <span class="o">=</span> <span class="no">GL_FILL</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">object</span> <span class="o">=</span> <span class="kp">new</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="n">z_width</span><span class="p">,</span> <span class="n">mode_face</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">object</span><span class="o">.</span><span class="n">draw</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">draw</span>
+</span><span class='line'>    <span class="n">glPolygonMode</span><span class="p">(</span><span class="n">mode_face</span><span class="p">,</span> <span class="n">mode</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">glBegin</span><span class="p">(</span><span class="no">GL_QUADS</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1">#yx</span>
+</span><span class='line'>      <span class="n">glColor3d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1">#yz</span>
+</span><span class='line'>      <span class="n">glColor3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z_width</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="n">z_width</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1">#zx</span>
+</span><span class='line'>      <span class="n">glColor3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z_width</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z_width</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1">#z -&gt; yx</span>
+</span><span class='line'>      <span class="n">glColor3d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z_width</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z_width</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="n">z_width</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="n">z_width</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1">#x -&gt; yz</span>
+</span><span class='line'>      <span class="n">glColor3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z_width</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="n">z_width</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1">#y -&gt; zx</span>
+</span><span class='line'>      <span class="n">glColor3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="n">z_width</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="n">z_width</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">glEnd</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I’ve added two new variables – arguments for <code>glPolygonMode</code> that set a <code>rasterization</code> mode. The arguments are face (front, back) and mode (<code>GL_POINT</code>, <code>GL_LINE</code>, <code>GL_FILL</code>).
+Let’s also update our axes and move code that defines their line types inside.</p>
+
+<p><code>objects/axis.rb</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Axis</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:x_width</span><span class="p">,</span> <span class="ss">:y_width</span><span class="p">,</span> <span class="ss">:z_width</span><span class="p">,</span> <span class="ss">:stipple</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="n">z_width</span><span class="p">,</span> <span class="n">stipple</span> <span class="o">=</span> <span class="kp">false</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@x_width</span> <span class="o">=</span> <span class="n">x_width</span>
+</span><span class='line'>    <span class="vi">@y_width</span> <span class="o">=</span> <span class="n">y_width</span>
+</span><span class='line'>    <span class="vi">@z_width</span> <span class="o">=</span> <span class="n">z_width</span>
+</span><span class='line'>    <span class="vi">@stipple</span> <span class="o">=</span> <span class="n">stipple</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">draw</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="n">z_width</span><span class="p">,</span> <span class="n">stipple</span> <span class="o">=</span> <span class="kp">false</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">object</span> <span class="o">=</span> <span class="kp">new</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="n">z_width</span><span class="p">,</span> <span class="n">stipple</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">object</span><span class="o">.</span><span class="n">draw</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">draw</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">stipple</span>
+</span><span class='line'>      <span class="n">glEnable</span><span class="p">(</span><span class="no">GL_LINE_STIPPLE</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glLineStipple</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mh">0x00FF</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">glBegin</span><span class="p">(</span><span class="no">GL_LINES</span><span class="p">)</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'>    <span class="n">glEnd</span>
+</span><span class='line'>    <span class="n">glDisable</span><span class="p">(</span><span class="no">GL_LINE_STIPPLE</span><span class="p">)</span> <span class="k">if</span> <span class="n">stipple</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let’s update our code to use our new cubes.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">draw</span>
+</span><span class='line'>  <span class="n">gl</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">glClear</span><span class="p">(</span><span class="no">GL_COLOR_BUFFER_BIT</span> <span class="o">|</span> <span class="no">GL_DEPTH_BUFFER_BIT</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">glPushMatrix</span>
+</span><span class='line'>      <span class="n">glTranslated</span><span class="p">(</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="no">Axis</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+</span><span class='line'>      <span class="no">Cube</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="no">GL_FRONT_AND_BACK</span><span class="p">,</span> <span class="no">GL_LINE</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">glPopMatrix</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="no">Cube</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="no">GL_FRONT_AND_BACK</span><span class="p">,</span> <span class="no">GL_LINE</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="no">Axis</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="kp">true</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://akovtunov.github.io/images/ruby_opengl/diatom_opengl-9.jpg"></p>
+
+<p>Looks clear, doesn’t it?
+To add perspective, we need to use the <code>gluPerspective</code> method, which is used to set up a perspective projection. It’s done once to set up how the scene will be rendered. If <code>gluPerspective</code> is used, the perspective correction will happen while rendering. The arguments are angle of view, aspect ratio, z-near and z-far.</p>
+
+<p><img src="http://akovtunov.github.io/images/ruby_opengl/Untitled-drawing-1.jpg"></p>
+
+<p>So, let’s add perspective to our application.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">draw</span>
+</span><span class='line'>  <span class="n">gl</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">glClear</span><span class="p">(</span><span class="no">GL_COLOR_BUFFER_BIT</span> <span class="o">|</span> <span class="no">GL_DEPTH_BUFFER_BIT</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">glMatrixMode</span><span class="p">(</span><span class="no">GL_PROJECTION</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glLoadIdentity</span><span class="p">()</span>
+</span><span class='line'>      <span class="n">gluPerspective</span><span class="p">(</span><span class="mi">130</span><span class="p">,</span> <span class="n">width</span><span class="o">.</span><span class="n">to_f</span><span class="o">/</span><span class="n">height</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glMatrixMode</span><span class="p">(</span><span class="no">GL_MODELVIEW</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glLoadIdentity</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">glPushMatrix</span>
+</span><span class='line'>      <span class="n">glTranslated</span><span class="p">(</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="no">Axis</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+</span><span class='line'>      <span class="no">Cube</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="no">GL_FRONT_AND_BACK</span><span class="p">,</span> <span class="no">GL_LINE</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">glPopMatrix</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="no">Cube</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="no">GL_FRONT_AND_BACK</span><span class="p">,</span> <span class="no">GL_LINE</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="no">Axis</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="kp">true</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://akovtunov.github.io/images/ruby_opengl/diatom_opengl-10.jpg"></p>
+
+<p>We can see that our field of view has been updated, and we can see only part of our (0, 0, 0) cube and axis. To see what <code>gluPerspective</code> really changes, let’s add a viewpoint.</p>
+
+<p>To turn the player, OpenGL developers usually build a matrix of the view, load it and use later to turn the entire scene around the player. To simplify our code, we will create a ‘camera’ object that will help us look at the whole scene. To do this, we will use <code>gluLookAt</code>.</p>
+
+<p><img src="http://akovtunov.github.io/images/ruby_opengl/Untitled-123.jpg"></p>
+
+<p>If we don’t set <code>gluLookAt</code>, OpenGL will automatically set it to (x = 0, y = 0, z = 0). Looking at our screen, that will be equal to <code>gluLookAt(0, 0, 1, 0, 0, 0, 0, 1, 0)</code>. So, let’s set our <code>gluLookAt</code> properly, so we can see our scene.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">glMatrixMode</span><span class="p">(</span><span class="no">GL_MODELVIEW</span><span class="p">)</span>
+</span><span class='line'><span class="n">glLoadIdentity</span><span class="p">()</span>
+</span><span class='line'><span class="n">gluLookAt</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>gluLookAt</code> sets our camera to point (x = 400, y = 400, z = 400) and looks at point (x = 0, y = 0, z = 0), three other coordinates of <code>up</code> vector that we will not touch for now.</p>
+
+<p><img src="http://akovtunov.github.io/images/ruby_opengl/diatom_opengl-12.jpg"></p>
+
+<p>Let’s play with gluPerspective a bit now.
+<code>gluPerspective(130, width.to_f/height, 0.001, 225)</code></p>
+
+<p><img src="http://akovtunov.github.io/images/ruby_opengl/diatom_opengl-21_2.jpg">
+<img src="http://akovtunov.github.io/images/ruby_opengl/diatom_opengl-23_2.jpg">
+<img src="http://akovtunov.github.io/images/ruby_opengl/diatom_opengl-24_2.jpg"></p>
+
+<p>What if we want to move the camera and see the other sides of our scene? Here <code>gosu</code> helps with its built-in I\O mechanisms.</p>
+
+<h2>MOVING THE CAMERA</h2>
+
+<p>As you noticed, we can change all of the arguments of the <code>gluLookAt</code> method. To move our camera, we need to bind those changes to the keyboard.
+I will not explain the difficult math behind the matrixes and real turning of cameras as it was made in games\applications through formulas of radiuses and angles. I want to move our camera only through axes. I know that it’s not the best solution, but it’s the easiest for understanding.
+Let’s move our <code>gluLookAt</code> method inside the new camera object that will be in <code>objects/camera.rb</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Camera</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:camera_position</span><span class="p">,</span> <span class="ss">:look_at_object_position</span><span class="p">,</span> <span class="ss">:window</span><span class="p">,</span> <span class="ss">:speed</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@window</span> <span class="o">=</span> <span class="n">window</span>
+</span><span class='line'>    <span class="vi">@camera_position</span> <span class="o">=</span> <span class="no">Vector3</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@look_at_object_position</span> <span class="o">=</span> <span class="no">Vector3</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@speed</span> <span class="o">=</span> <span class="mi">10</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">capture</span>
+</span><span class='line'>    <span class="n">font</span> <span class="o">=</span> <span class="no">Gosu</span><span class="o">::</span><span class="no">Font</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">default_font_name</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">button_down</span>
+</span><span class='line'>    <span class="n">font</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;Camera position: </span><span class="si">#{</span><span class="n">camera_position</span><span class="o">.</span><span class="n">x</span><span class="si">}</span><span class="s2">:</span><span class="si">#{</span><span class="n">camera_position</span><span class="o">.</span><span class="n">y</span><span class="si">}</span><span class="s2">:</span><span class="si">#{</span><span class="n">camera_position</span><span class="o">.</span><span class="n">z</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span> <span class="mh">0xffffffff</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">font</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;Look at position: </span><span class="si">#{</span><span class="n">look_at_object_position</span><span class="o">.</span><span class="n">x</span><span class="si">}</span><span class="s2">:</span><span class="si">#{</span><span class="n">look_at_object_position</span><span class="o">.</span><span class="n">y</span><span class="si">}</span><span class="s2">:</span><span class="si">#{</span><span class="n">look_at_object_position</span><span class="o">.</span><span class="n">z</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">3</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span> <span class="mh">0xffffffff</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">font</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;Your speed: </span><span class="si">#{</span><span class="n">speed</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">3</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span> <span class="mh">0xffffffff</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">gluLookAt</span><span class="p">(</span><span class="n">camera_position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">camera_position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">camera_position</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">look_at_object_position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">look_at_object_position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">look_at_object_position</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">button_down</span>
+</span><span class='line'>    <span class="vi">@camera_position</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">speed</span> <span class="k">if</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KbRight</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="o">!</span><span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KB_LEFT_SHIFT</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@camera_position</span><span class="o">.</span><span class="n">x</span> <span class="o">-=</span> <span class="n">speed</span> <span class="k">if</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KbLeft</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="o">!</span><span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KB_LEFT_SHIFT</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@camera_position</span><span class="o">.</span><span class="n">y</span> <span class="o">+=</span> <span class="n">speed</span> <span class="k">if</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KbUp</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="o">!</span><span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KB_LEFT_SHIFT</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@camera_position</span><span class="o">.</span><span class="n">y</span> <span class="o">-=</span> <span class="n">speed</span> <span class="k">if</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KbDown</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="o">!</span><span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KB_LEFT_SHIFT</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@camera_position</span><span class="o">.</span><span class="n">z</span> <span class="o">+=</span> <span class="n">speed</span> <span class="k">if</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KB_NUMPAD_8</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="o">!</span><span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KB_LEFT_SHIFT</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@camera_position</span><span class="o">.</span><span class="n">z</span> <span class="o">-=</span> <span class="n">speed</span> <span class="k">if</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KB_NUMPAD_2</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="o">!</span><span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KB_LEFT_SHIFT</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@look_at_object_position</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">speed</span> <span class="k">if</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KbRight</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KB_LEFT_SHIFT</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@look_at_object_position</span><span class="o">.</span><span class="n">x</span> <span class="o">-=</span> <span class="n">speed</span> <span class="k">if</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KbLeft</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KB_LEFT_SHIFT</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@look_at_object_position</span><span class="o">.</span><span class="n">y</span> <span class="o">+=</span> <span class="n">speed</span> <span class="k">if</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KbUp</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KB_LEFT_SHIFT</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@look_at_object_position</span><span class="o">.</span><span class="n">y</span> <span class="o">-=</span> <span class="n">speed</span> <span class="k">if</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KbDown</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KB_LEFT_SHIFT</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@look_at_object_position</span><span class="o">.</span><span class="n">z</span> <span class="o">+=</span> <span class="n">speed</span> <span class="k">if</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KB_NUMPAD_8</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KB_LEFT_SHIFT</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@look_at_object_position</span><span class="o">.</span><span class="n">z</span> <span class="o">-=</span> <span class="n">speed</span> <span class="k">if</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KB_NUMPAD_2</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KB_LEFT_SHIFT</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To understand how everything works, I bind each axis to a key. Here is the schema to move the camera:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>UP, DOWN - by Y axis
+</span><span class='line'>LEFT, RIGHT - by X axis
+</span><span class='line'>NUM8, NUM2 - by Z axis
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To move the target point, you need to hold shift, clicking on the same buttons.
+I can display the current coordinates of points and the current camera speed using gosu’s text output methods. To do this, we need to pass a ‘window’ object into our class and work with it. For camera position, I wrote a <code>Vector3</code> class that contains x, y and z coordinates:
+<code>objects/vector3.rb</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">Vector3</span> <span class="o">=</span> <span class="no">Struct</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:x</span><span class="p">,</span> <span class="ss">:y</span><span class="p">,</span> <span class="ss">:z</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After we build our camera class, let’s use it inside <code>run.rb</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">draw</span>
+</span><span class='line'>  <span class="n">gl</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">glClear</span><span class="p">(</span><span class="no">GL_COLOR_BUFFER_BIT</span> <span class="o">|</span> <span class="no">GL_DEPTH_BUFFER_BIT</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">glMatrixMode</span><span class="p">(</span><span class="no">GL_PROJECTION</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glLoadIdentity</span><span class="p">()</span>
+</span><span class='line'>      <span class="n">gluPerspective</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="n">width</span><span class="o">.</span><span class="n">to_f</span><span class="o">/</span><span class="n">height</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glMatrixMode</span><span class="p">(</span><span class="no">GL_MODELVIEW</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glLoadIdentity</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@camera</span><span class="o">.</span><span class="n">capture</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">glPushMatrix</span>
+</span><span class='line'>      <span class="n">glTranslated</span><span class="p">(</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="no">Axis</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+</span><span class='line'>      <span class="no">Cube</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="no">GL_FRONT_AND_BACK</span><span class="p">,</span> <span class="no">GL_LINE</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">glPopMatrix</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="no">Cube</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="no">GL_FRONT_AND_BACK</span><span class="p">,</span> <span class="no">GL_FILL</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="no">Axis</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="kp">true</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>‘Fly’ a bit on our scene to see how <code>gluLookAt</code> works.
+I suggest rewriting the keyboard settings a bit to make them more useful. Also, I want to be able to increase our camera’s speed. For this I want to rewrite the camera object:
+<code>objects/camera.rb</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">button_down</span>
+</span><span class='line'>  <span class="n">check_speed</span>
+</span><span class='line'>  <span class="k">case</span>
+</span><span class='line'>  <span class="k">when</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KbD</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@camera_position</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">speed</span>
+</span><span class='line'>    <span class="vi">@look_at_object_position</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">speed</span>
+</span><span class='line'>  <span class="k">when</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KbA</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@camera_position</span><span class="o">.</span><span class="n">x</span> <span class="o">-=</span> <span class="n">speed</span>
+</span><span class='line'>    <span class="vi">@look_at_object_position</span><span class="o">.</span><span class="n">x</span> <span class="o">-=</span> <span class="n">speed</span>
+</span><span class='line'>  <span class="k">when</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KbW</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@camera_position</span><span class="o">.</span><span class="n">z</span> <span class="o">-=</span> <span class="n">speed</span>
+</span><span class='line'>    <span class="vi">@look_at_object_position</span><span class="o">.</span><span class="n">z</span> <span class="o">-=</span> <span class="n">speed</span>
+</span><span class='line'>  <span class="k">when</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KbS</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@camera_position</span><span class="o">.</span><span class="n">z</span> <span class="o">+=</span> <span class="n">speed</span>
+</span><span class='line'>    <span class="vi">@look_at_object_position</span><span class="o">.</span><span class="n">z</span> <span class="o">+=</span> <span class="n">speed</span>
+</span><span class='line'>  <span class="k">when</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KbUp</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@look_at_object_position</span><span class="o">.</span><span class="n">y</span> <span class="o">+=</span> <span class="n">speed</span>
+</span><span class='line'>  <span class="k">when</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KbDown</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@look_at_object_position</span><span class="o">.</span><span class="n">y</span> <span class="o">-=</span> <span class="n">speed</span>
+</span><span class='line'>  <span class="k">when</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KbRight</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@look_at_object_position</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">speed</span>
+</span><span class='line'>  <span class="k">when</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KbLeft</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@look_at_object_position</span><span class="o">.</span><span class="n">x</span> <span class="o">-=</span> <span class="n">speed</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">check_speed</span>
+</span><span class='line'>  <span class="vi">@speed</span> <span class="o">=</span> <span class="mi">10</span>
+</span><span class='line'>  <span class="vi">@speed</span> <span class="o">=</span> <span class="mi">20</span> <span class="k">if</span> <span class="no">Gosu</span><span class="o">::</span><span class="n">button_down?</span><span class="p">(</span><span class="no">Gosu</span><span class="o">::</span><span class="no">KB_LEFT_SHIFT</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let’s use the W and S keys to move the camera on the z axis, A and D to move the camera on the x axis, UP and DOWN to move the target of view on the y axis and LEFT and RIGHT to move the target of view on the x axis. Holding shift will increase our speed.</p>
+
+<h2>LET’S PLAY!</h2>
+
+<p>Let’s add a cube object filled with lines to our pointer. To do this, we need to update our cube code to receive the current coordinates and build a cube depending on them.
+<code>objects/cube.rb</code> :</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;pry&#39;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Cube</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:position</span><span class="p">,</span> <span class="ss">:x_width</span><span class="p">,</span> <span class="ss">:y_width</span><span class="p">,</span> <span class="ss">:z_width</span><span class="p">,</span> <span class="ss">:mode</span><span class="p">,</span> <span class="ss">:mode_face</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="n">z_width</span><span class="p">,</span> <span class="n">mode_face</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@x_width</span> <span class="o">=</span> <span class="n">x_width</span>
+</span><span class='line'>    <span class="vi">@y_width</span> <span class="o">=</span> <span class="n">y_width</span>
+</span><span class='line'>    <span class="vi">@z_width</span> <span class="o">=</span> <span class="n">z_width</span>
+</span><span class='line'>    <span class="vi">@mode</span> <span class="o">=</span> <span class="n">mode</span>
+</span><span class='line'>    <span class="vi">@mode_face</span> <span class="o">=</span> <span class="n">mode_face</span>
+</span><span class='line'>    <span class="vi">@position</span> <span class="o">=</span> <span class="no">Vector3</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">draw</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="n">z_width</span><span class="p">,</span> <span class="n">mode_face</span> <span class="o">=</span> <span class="no">GL_FRONT_AND_BACK</span><span class="p">,</span> <span class="n">mode</span> <span class="o">=</span> <span class="no">GL_FILL</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">object</span> <span class="o">=</span> <span class="kp">new</span><span class="p">(</span><span class="n">x_width</span><span class="p">,</span> <span class="n">y_width</span><span class="p">,</span> <span class="n">z_width</span><span class="p">,</span> <span class="n">mode_face</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">object</span><span class="o">.</span><span class="n">draw</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">draw</span>
+</span><span class='line'>    <span class="n">glPolygonMode</span><span class="p">(</span><span class="n">mode_face</span><span class="p">,</span> <span class="n">mode</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">glBegin</span><span class="p">(</span><span class="no">GL_QUADS</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1">#yx</span>
+</span><span class='line'>      <span class="n">glColor3d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1">#yz</span>
+</span><span class='line'>      <span class="n">glColor3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">z_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">z_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1">#zx</span>
+</span><span class='line'>      <span class="n">glColor3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">z_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">z_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1">#z -&amp;gt; yx</span>
+</span><span class='line'>      <span class="n">glColor3d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">z_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">z_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">z_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">z_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1">#x -&amp;gt; yz</span>
+</span><span class='line'>      <span class="n">glColor3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">z_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">z_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1">#y -&amp;gt; zx</span>
+</span><span class='line'>      <span class="n">glColor3d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">z_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">z_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">glColor3d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="c1">#return back primary color</span>
+</span><span class='line'>    <span class="n">glEnd</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we can update our main window’s method draw with this code</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">glPushMatrix</span>
+</span><span class='line'> <span class="n">glTranslated</span><span class="p">(</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'> <span class="no">Axis</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+</span><span class='line'> <span class="no">Cube</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="no">GL_FRONT_AND_BACK</span><span class="p">,</span> <span class="no">GL_FILL</span><span class="p">)</span>
+</span><span class='line'> <span class="no">Cube</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="no">GL_FRONT_AND_BACK</span><span class="p">,</span> <span class="no">GL_LINE</span><span class="p">,</span> <span class="vi">@camera</span><span class="o">.</span><span class="n">look_at_object_position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="vi">@camera</span><span class="o">.</span><span class="n">look_at_object_position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="vi">@camera</span><span class="o">.</span><span class="n">look_at_object_position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'><span class="n">glPopMatrix</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>At the end, you should see this view:</p>
+
+<p><img src="http://akovtunov.github.io/images/ruby_opengl/diatom_opengl-14.jpg"></p>
+
+<h2>CUBE CREATOR</h2>
+
+<p>What if we want to place some new cubes? Easy!
+Let’s change our <code>run.rb</code> code to</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;opengl&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;glu&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;gosu&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Dir</span><span class="o">[</span><span class="s2">&quot;objects/*&quot;</span><span class="o">].</span><span class="n">each</span> <span class="p">{</span><span class="o">|</span><span class="n">file</span><span class="o">|</span> <span class="n">require_relative</span> <span class="n">file</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kp">include</span> <span class="no">Gl</span><span class="p">,</span> <span class="no">Glu</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Window</span> <span class="o">&lt;</span> <span class="no">Gosu</span><span class="o">::</span><span class="no">Window</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">attr_accessor</span> <span class="ss">:scene_objects</span><span class="p">,</span> <span class="ss">:translation</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span>
+</span><span class='line'>    <span class="k">super</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">600</span>
+</span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">caption</span> <span class="o">=</span> <span class="s2">&quot;Diatom&#39;s OpenGL Tutorial&quot;</span>
+</span><span class='line'>    <span class="vi">@camera</span> <span class="o">=</span> <span class="no">Camera</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@scene_objects</span> <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'>    <span class="vi">@translation</span> <span class="o">=</span> <span class="no">Vector3</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">update</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">draw</span>
+</span><span class='line'>    <span class="n">gl</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">glClear</span><span class="p">(</span><span class="no">GL_COLOR_BUFFER_BIT</span> <span class="o">|</span> <span class="no">GL_DEPTH_BUFFER_BIT</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">glMatrixMode</span><span class="p">(</span><span class="no">GL_PROJECTION</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glLoadIdentity</span><span class="p">()</span>
+</span><span class='line'>      <span class="n">gluPerspective</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="n">width</span><span class="o">.</span><span class="n">to_f</span><span class="o">/</span><span class="n">height</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glMatrixMode</span><span class="p">(</span><span class="no">GL_MODELVIEW</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">glLoadIdentity</span><span class="p">()</span>
+</span><span class='line'>      <span class="vi">@camera</span><span class="o">.</span><span class="n">capture</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="vi">@scene_objects</span> <span class="o">&lt;&lt;</span> <span class="no">Axis</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+</span><span class='line'>      <span class="vi">@scene_objects</span> <span class="o">&lt;&lt;</span> <span class="no">Cube</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="no">GL_FRONT_AND_BACK</span><span class="p">,</span> <span class="no">GL_FILL</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">glPushMatrix</span>
+</span><span class='line'>        <span class="n">glTranslated</span><span class="p">(</span><span class="n">translation</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">translation</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">translation</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>        <span class="vi">@scene_objects</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">object</span><span class="o">|</span>
+</span><span class='line'>          <span class="n">object</span><span class="o">.</span><span class="n">draw</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>      <span class="n">glPopMatrix</span>
+</span><span class='line'>      <span class="no">Cube</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="no">GL_FRONT_AND_BACK</span><span class="p">,</span> <span class="no">GL_LINE</span><span class="p">,</span> <span class="vi">@camera</span><span class="o">.</span><span class="n">look_at_object_position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="vi">@camera</span><span class="o">.</span><span class="n">look_at_object_position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="vi">@camera</span><span class="o">.</span><span class="n">look_at_object_position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="no">Cube</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="no">GL_FRONT_AND_BACK</span><span class="p">,</span> <span class="no">GL_FILL</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="no">Axis</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="kp">true</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">button_down</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+</span><span class='line'>    <span class="nb">exit</span> <span class="k">if</span> <span class="nb">id</span> <span class="o">==</span> <span class="no">Gosu</span><span class="o">::</span><span class="no">KbEscape</span>
+</span><span class='line'>    <span class="n">add_cube</span> <span class="k">if</span> <span class="nb">id</span> <span class="o">==</span> <span class="no">Gosu</span><span class="o">::</span><span class="no">KbSpace</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">add_cube</span>
+</span><span class='line'>    <span class="vi">@scene_objects</span> <span class="o">&lt;&lt;</span> <span class="no">Cube</span><span class="o">.</span><span class="n">new</span><span class="p">(</span>
+</span><span class='line'>      <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span>
+</span><span class='line'>      <span class="no">GL_FRONT_AND_BACK</span><span class="p">,</span> <span class="no">GL_FILL</span><span class="p">,</span>
+</span><span class='line'>      <span class="vi">@camera</span><span class="o">.</span><span class="n">look_at_object_position</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">translation</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="vi">@camera</span><span class="o">.</span><span class="n">look_at_object_position</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">translation</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="vi">@camera</span><span class="o">.</span><span class="n">look_at_object_position</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">translation</span><span class="o">.</span><span class="n">z</span>
+</span><span class='line'>    <span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Window</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">show</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you will notice, I moved the translation vector to the variable of Vector3 class, moved all objects that will be translated and drawn on the scene to the array <code>@scene_objects</code> and then placed them on the scene with a loop.
+To add a new cube, I can just create a new cube object and place it in the array. Coordinates should depend on the translation vector to place everything on valid places.</p>
+
+<p><img src="http://akovtunov.github.io/images/ruby_opengl/diatom_opengl-28.jpg"></p>
+
+<p>Let’s add some textures. We can create a gosu image object from file and then get texture information from it with the <code>gl_tex_info</code> method. To build it, let’s add a class <code>texture</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Texture</span>
+</span><span class='line'>  <span class="kp">attr_accessor</span> <span class="ss">:info</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@image</span> <span class="o">=</span> <span class="no">Gosu</span><span class="o">::</span><span class="no">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="p">{</span><span class="ss">tileable</span><span class="p">:</span> <span class="kp">true</span><span class="p">,</span> <span class="ss">retro</span><span class="p">:</span> <span class="kp">false</span><span class="p">})</span>
+</span><span class='line'>    <span class="vi">@info</span> <span class="o">=</span> <span class="vi">@image</span><span class="o">.</span><span class="n">gl_tex_info</span>
+</span><span class='line'>    <span class="c1"># gl_tex_info can return nil if the image was too large to fit onto</span>
+</span><span class='line'>    <span class="c1"># a single OpenGL texture and was internally split up.</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then we will need to update our cube <code>draw</code> method with:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">texture_info</span> <span class="o">=</span> <span class="n">texture</span><span class="o">.</span><span class="n">info</span>
+</span><span class='line'>  <span class="n">glEnable</span><span class="p">(</span><span class="no">GL_TEXTURE_2D</span><span class="p">)</span> <span class="c1"># enables two-dimensional texturing to perform</span>
+</span><span class='line'>    <span class="n">glBindTexture</span><span class="p">(</span><span class="no">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">texture_info</span><span class="o">.</span><span class="n">tex_name</span><span class="p">)</span> <span class="c1"># bing named texture to a target</span>
+</span><span class='line'>    <span class="n">glPixelStorei</span><span class="p">(</span><span class="no">GL_UNPACK_ALIGNMENT</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">draw_textured_cube</span>
+</span><span class='line'>  <span class="n">glDisable</span><span class="p">(</span><span class="no">GL_TEXTURE_2D</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>where specify the texture’s edge that will be assigned to that point. Basically, the texture’s left bottom coordinates are (0, 0) and top right coordinates are (1, 1), and we stretch it between the edges of our cube. Code sample for one side:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">glTexCoord2d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span> <span class="n">glVertex3d</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'><span class="n">glTexCoord2d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span> <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'><span class="n">glTexCoord2d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span> <span class="n">glVertex3d</span><span class="p">(</span><span class="n">x_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span><span class='line'><span class="n">glTexCoord2d</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span> <span class="n">glVertex3d</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y_width</span> <span class="o">+</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>By adding some lights with</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">glEnable</span><span class="p">(</span><span class="no">GL_LIGHTING</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">glLightfv</span><span class="p">(</span><span class="no">GL_LIGHT0</span><span class="p">,</span> <span class="no">GL_AMBIENT</span><span class="p">,</span> <span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">glLightfv</span><span class="p">(</span><span class="no">GL_LIGHT0</span><span class="p">,</span> <span class="no">GL_DIFFUSE</span><span class="p">,</span> <span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">glLightfv</span><span class="p">(</span><span class="no">GL_LIGHT0</span><span class="p">,</span> <span class="no">GL_POSITION</span><span class="p">,</span> <span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">glLightfv</span><span class="p">(</span><span class="no">GL_LIGHT1</span><span class="p">,</span> <span class="no">GL_AMBIENT</span><span class="p">,</span> <span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">glLightfv</span><span class="p">(</span><span class="no">GL_LIGHT1</span><span class="p">,</span> <span class="no">GL_DIFFUSE</span><span class="p">,</span> <span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">glLightfv</span><span class="p">(</span><span class="no">GL_LIGHT1</span><span class="p">,</span> <span class="no">GL_POSITION</span><span class="p">,</span> <span class="o">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span><span class="mi">1</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'><span class="n">glEnable</span><span class="p">(</span><span class="no">GL_LIGHT0</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>depth test to depth buffer comparisons</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">glEnable</span><span class="p">(</span><span class="no">GL_DEPTH_TEST</span><span class="p">);</span>
+</span><span class='line'><span class="n">glDepthMask</span><span class="p">(</span><span class="no">GL_TRUE</span><span class="p">);</span>
+</span><span class='line'><span class="n">glDepthFunc</span><span class="p">(</span><span class="no">GL_LEQUAL</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and textures with</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">glEnable</span><span class="p">(</span><span class="no">GL_TEXTURE_2D</span><span class="p">)</span> <span class="c1"># enables two-dimensional texturing to perform</span>
+</span><span class='line'><span class="n">glBindTexture</span><span class="p">(</span><span class="no">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">texture_info</span><span class="o">.</span><span class="n">tex_name</span><span class="p">)</span> <span class="c1"># bing named texture to a target</span>
+</span><span class='line'><span class="n">glPixelStorei</span><span class="p">(</span><span class="no">GL_UNPACK_ALIGNMENT</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>we can build nice textured scene with real lighting.</p>
+
+<p><img src="http://akovtunov.github.io/images/ruby_opengl/diatom_opengl.jpg"></p>
+
+<p>With some additional work, we can achieve a switch of material for blocks that we are trying to build and other nice things.</p>
+
+<p>Video: <a href="https://youtu.be/aKyR4a5SGbo">YouTube</a>
+All the code for that can be found at <a href="https://github.com/DiatomEnterprises/ruby_opengl">our repository on GitHub</a></p>
+
+<p>OpenGL is common everywhere and learning it once, you will be able to build projects with it on any language. The same is with Ruby. Just imagine something cool, and we can build it with Ruby!</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Gamedev on Ruby? Why Not!]]></title>

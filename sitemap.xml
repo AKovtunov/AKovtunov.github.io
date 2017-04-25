@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://akovtunov.github.io/blog/2017/04/24/different-sides-of-ruby-development-opengl/</loc>
+<lastmod>2017-04-24T12:03:59+02:00</lastmod>
+</url>
+<url>
 <loc>http://akovtunov.github.io/blog/2017/04/23/gamedev-on-ruby-why-not/</loc>
 <lastmod>2017-04-23T12:18:04+02:00</lastmod>
 </url>
@@ -67,5 +71,11 @@
 </url>
 <url>
 <loc>http://akovtunov.github.io/blog/categories/test-driven-development/</loc>
+</url>
+<url>
+<loc>http://akovtunov.github.io/blog/categories/opengl/</loc>
+</url>
+<url>
+<loc>http://akovtunov.github.io/blog/categories/game/</loc>
 </url>
 </urlset>
