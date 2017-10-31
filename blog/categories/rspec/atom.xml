@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Rspec, | Knowledge Gathering]]></title>
   <link href="http://akovtunov.github.io/blog/categories/rspec/atom.xml" rel="self"/>
   <link href="http://akovtunov.github.io/"/>
-  <updated>2017-04-26T00:23:48+02:00</updated>
+  <updated>2017-10-31T02:23:44+01:00</updated>
   <id>http://akovtunov.github.io/</id>
   <author>
     <name><![CDATA[Alexandr Kovtunov]]></name>
@@ -12,6 +12,79 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Teaching RSpec How to Speak]]></title>
+    <link href="http://akovtunov.github.io/blog/2017/11/01/teaching-rspec-to-speak/"/>
+    <updated>2017-11-01T01:16:53+01:00</updated>
+    <id>http://akovtunov.github.io/blog/2017/11/01/teaching-rspec-to-speak</id>
+    <content type="html"><![CDATA[<p>As a Ruby on Rails developer, I&rsquo;m writing RSpec tests a lot and for big applications it takes a lot of time to run them all.
+On my current project tests take close to half an hour to run, so I&rsquo;m getting disturbed by another tasks, funny Facebook memes or interesting YouTube videos. As a result, my running tests are being forgotten. I&rsquo;ve spent some time to find a good solution to remind me about them, and I found it.</p>
+
+<!--more-->
+
+
+<h2>TTS - Text to Speech. (Time to Speak :P )</h2>
+
+<p>I was wondering if I can use the Google Translate voice to tell me when my tests are done and I found a way to do it.
+We just need a <a href="https://github.com/c2h2/tts">tts</a> gem and some magic around.</p>
+
+<p>At first, let&rsquo;s install the tts gem by adding it to the <code>Gemfile</code></p>
+
+<pre><code class="ruby">gem 'tts'
+</code></pre>
+
+<p>or just by running <code>gem install tts</code>.</p>
+
+<p>Then we need to modify our <code>spec/spec_helper.rb</code> and add a few lines:</p>
+
+<pre><code class="ruby">require 'tts'
+config.after(:suite) do
+  "Rspec completed testing the application.".play
+end
+</code></pre>
+
+<p>So, after the whole bunch of tests (<code>config.after(:suite)</code>) the code will run tts method <code>play</code>, that will tell us that tests were completed.</p>
+
+<p>But what if I want to hear more detailed results? We can get current results from RSpec&rsquo;s reporter variable and count successful results.</p>
+
+<pre><code class="ruby">reporter = RSpec.world.reporter
+examples_count = reporter.examples.count
+failed_examples_count = reporter.failed_examples.count
+successful_examples_count = examples_count - failed_examples_count
+</code></pre>
+
+<p>Now we can combine everything and listen how RSpec tells us the statistics after each run</p>
+
+<pre><code class="ruby">config.after(:suite) do
+  reporter = RSpec.world.reporter
+  examples_count = reporter.examples.count
+  failed_examples_count = reporter.failed_examples.count
+  successful_examples_count = examples_count - failed_examples_count
+  "Rspec completed testing the application. Total count is #{examples_count}. Successful - #{successful_examples_count}. Failed - #{failed_examples_count}".play
+end
+</code></pre>
+
+<p>What if we don&rsquo;t want to hear this annoying text all the time when we are running single test or sitting in the silent office? What if we don&rsquo;t want to scare our roommates?</p>
+
+<p>I found that we can&rsquo;t easily pass the options to the <code>rspec</code> command, BUT we can use environment variables to set some parameters.</p>
+
+<p>Let&rsquo;s agree that we will use <code>RSPEC_TTS_ENABLED</code> environment variable defining if we want to hear our command or not. Then we can enable the tts only if it will receive the variable.</p>
+
+<pre><code class="ruby">if ENV['RSPEC_TTS_ENABLED']
+  config.after(:suite) do
+    reporter = RSpec.world.reporter
+    examples_count = reporter.examples.count
+    failed_examples_count = reporter.failed_examples.count
+    successful_examples_count = examples_count - failed_examples_count
+    "Rspec completed testing the application. Total count is #{examples_count}. Successful - #{successful_examples_count}. Failed - #{failed_examples_count}".play
+  end
+end
+</code></pre>
+
+<p>Thats it! A bit of code and we have a reminder about completed tests :)</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Gamedev on Ruby? Why Not!]]></title>

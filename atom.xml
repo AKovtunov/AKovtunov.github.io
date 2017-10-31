@@ -4,7 +4,7 @@
   <title><![CDATA[Knowledge Gathering]]></title>
   <link href="http://akovtunov.github.io/atom.xml" rel="self"/>
   <link href="http://akovtunov.github.io/"/>
-  <updated>2017-04-26T00:23:48+02:00</updated>
+  <updated>2017-10-31T02:23:44+01:00</updated>
   <id>http://akovtunov.github.io/</id>
   <author>
     <name><![CDATA[Alexandr Kovtunov]]></name>
@@ -12,6 +12,109 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Teaching RSpec How to Speak]]></title>
+    <link href="http://akovtunov.github.io/blog/2017/11/01/teaching-rspec-to-speak/"/>
+    <updated>2017-11-01T01:16:53+01:00</updated>
+    <id>http://akovtunov.github.io/blog/2017/11/01/teaching-rspec-to-speak</id>
+    <content type="html"><![CDATA[<p>As a Ruby on Rails developer, I&rsquo;m writing RSpec tests a lot and for big applications it takes a lot of time to run them all.
+On my current project tests take close to half an hour to run, so I&rsquo;m getting disturbed by another tasks, funny Facebook memes or interesting YouTube videos. As a result, my running tests are being forgotten. I&rsquo;ve spent some time to find a good solution to remind me about them, and I found it.</p>
+
+<!--more-->
+
+
+<h2>TTS - Text to Speech. (Time to Speak :P )</h2>
+
+<p>I was wondering if I can use the Google Translate voice to tell me when my tests are done and I found a way to do it.
+We just need a <a href="https://github.com/c2h2/tts">tts</a> gem and some magic around.</p>
+
+<p>At first, let&rsquo;s install the tts gem by adding it to the <code>Gemfile</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="s1">&#39;tts&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>or just by running <code>gem install tts</code>.</p>
+
+<p>Then we need to modify our <code>spec/spec_helper.rb</code> and add a few lines:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;tts&#39;</span>
+</span><span class='line'><span class="n">config</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="ss">:suite</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>  <span class="s2">&quot;Rspec completed testing the application.&quot;</span><span class="o">.</span><span class="n">play</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So, after the whole bunch of tests (<code>config.after(:suite)</code>) the code will run tts method <code>play</code>, that will tell us that tests were completed.</p>
+
+<p>But what if I want to hear more detailed results? We can get current results from RSpec&rsquo;s reporter variable and count successful results.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">reporter</span> <span class="o">=</span> <span class="no">RSpec</span><span class="o">.</span><span class="n">world</span><span class="o">.</span><span class="n">reporter</span>
+</span><span class='line'><span class="n">examples_count</span> <span class="o">=</span> <span class="n">reporter</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">count</span>
+</span><span class='line'><span class="n">failed_examples_count</span> <span class="o">=</span> <span class="n">reporter</span><span class="o">.</span><span class="n">failed_examples</span><span class="o">.</span><span class="n">count</span>
+</span><span class='line'><span class="n">successful_examples_count</span> <span class="o">=</span> <span class="n">examples_count</span> <span class="o">-</span> <span class="n">failed_examples_count</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we can combine everything and listen how RSpec tells us the statistics after each run</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">config</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="ss">:suite</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">reporter</span> <span class="o">=</span> <span class="no">RSpec</span><span class="o">.</span><span class="n">world</span><span class="o">.</span><span class="n">reporter</span>
+</span><span class='line'>  <span class="n">examples_count</span> <span class="o">=</span> <span class="n">reporter</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">count</span>
+</span><span class='line'>  <span class="n">failed_examples_count</span> <span class="o">=</span> <span class="n">reporter</span><span class="o">.</span><span class="n">failed_examples</span><span class="o">.</span><span class="n">count</span>
+</span><span class='line'>  <span class="n">successful_examples_count</span> <span class="o">=</span> <span class="n">examples_count</span> <span class="o">-</span> <span class="n">failed_examples_count</span>
+</span><span class='line'>  <span class="s2">&quot;Rspec completed testing the application. Total count is </span><span class="si">#{</span><span class="n">examples_count</span><span class="si">}</span><span class="s2">. Successful - </span><span class="si">#{</span><span class="n">successful_examples_count</span><span class="si">}</span><span class="s2">. Failed - </span><span class="si">#{</span><span class="n">failed_examples_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">play</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What if we don&rsquo;t want to hear this annoying text all the time when we are running single test or sitting in the silent office? What if we don&rsquo;t want to scare our roommates?</p>
+
+<p>I found that we can&rsquo;t easily pass the options to the <code>rspec</code> command, BUT we can use environment variables to set some parameters.</p>
+
+<p>Let&rsquo;s agree that we will use <code>RSPEC_TTS_ENABLED</code> environment variable defining if we want to hear our command or not. Then we can enable the tts only if it will receive the variable.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">if</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;RSPEC_TTS_ENABLED&#39;</span><span class="o">]</span>
+</span><span class='line'>  <span class="n">config</span><span class="o">.</span><span class="n">after</span><span class="p">(</span><span class="ss">:suite</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">reporter</span> <span class="o">=</span> <span class="no">RSpec</span><span class="o">.</span><span class="n">world</span><span class="o">.</span><span class="n">reporter</span>
+</span><span class='line'>    <span class="n">examples_count</span> <span class="o">=</span> <span class="n">reporter</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">count</span>
+</span><span class='line'>    <span class="n">failed_examples_count</span> <span class="o">=</span> <span class="n">reporter</span><span class="o">.</span><span class="n">failed_examples</span><span class="o">.</span><span class="n">count</span>
+</span><span class='line'>    <span class="n">successful_examples_count</span> <span class="o">=</span> <span class="n">examples_count</span> <span class="o">-</span> <span class="n">failed_examples_count</span>
+</span><span class='line'>    <span class="s2">&quot;Rspec completed testing the application. Total count is </span><span class="si">#{</span><span class="n">examples_count</span><span class="si">}</span><span class="s2">. Successful - </span><span class="si">#{</span><span class="n">successful_examples_count</span><span class="si">}</span><span class="s2">. Failed - </span><span class="si">#{</span><span class="n">failed_examples_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">play</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Thats it! A bit of code and we have a reminder about completed tests :)</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Different Sides of Ruby Development: OpenGL]]></title>
