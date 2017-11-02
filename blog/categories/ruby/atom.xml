@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ruby, | Knowledge Gathering]]></title>
   <link href="http://akovtunov.github.io/blog/categories/ruby/atom.xml" rel="self"/>
   <link href="http://akovtunov.github.io/"/>
-  <updated>2017-10-31T02:23:44+01:00</updated>
+  <updated>2017-11-02T19:13:00+01:00</updated>
   <id>http://akovtunov.github.io/</id>
   <author>
     <name><![CDATA[Alexandr Kovtunov]]></name>
@@ -18,18 +18,19 @@
     <link href="http://akovtunov.github.io/blog/2017/11/01/teaching-rspec-to-speak/"/>
     <updated>2017-11-01T01:16:53+01:00</updated>
     <id>http://akovtunov.github.io/blog/2017/11/01/teaching-rspec-to-speak</id>
-    <content type="html"><![CDATA[<p>As a Ruby on Rails developer, I&rsquo;m writing RSpec tests a lot and for big applications it takes a lot of time to run them all.
-On my current project tests take close to half an hour to run, so I&rsquo;m getting disturbed by another tasks, funny Facebook memes or interesting YouTube videos. As a result, my running tests are being forgotten. I&rsquo;ve spent some time to find a good solution to remind me about them, and I found it.</p>
+    <content type="html"><![CDATA[<p>As a Ruby on Rails developer, I write a lot of RSpec tests, and for big applications, it takes a lot of time to run them all.</p>
+
+<p>For my current project tests, it takes close to half an hour to run, so I&rsquo;m often getting distracted by other tasks, funny Facebook memes, or interesting YouTube videos. As a result, my running tests are being forgotten. I&rsquo;ve spent some time to try to find a good solution to remind me about these running tests, and I’ve found it.</p>
 
 <!--more-->
 
 
 <h2>TTS - Text to Speech. (Time to Speak :P )</h2>
 
-<p>I was wondering if I can use the Google Translate voice to tell me when my tests are done and I found a way to do it.
-We just need a <a href="https://github.com/c2h2/tts">tts</a> gem and some magic around.</p>
+<p>I was wondering if I can use the Google Translate voice to tell me when my tests were done, and I found a way to do it.
+We just need a <a href="https://github.com/c2h2/tts">tts</a> gem and a bit of magic.</p>
 
-<p>At first, let&rsquo;s install the tts gem by adding it to the <code>Gemfile</code></p>
+<p>First, install the tts gem by adding it to the <code>Gemfile</code></p>
 
 <pre><code class="ruby">gem 'tts'
 </code></pre>
@@ -44,9 +45,9 @@ config.after(:suite) do
 end
 </code></pre>
 
-<p>So, after the whole bunch of tests (<code>config.after(:suite)</code>) the code will run tts method <code>play</code>, that will tell us that tests were completed.</p>
+<p>So, after a whole bunch of tests (<code>config.after(:suite)</code>) the code will run tts method <code>play</code>, that will tell us that tests were completed.</p>
 
-<p>But what if I want to hear more detailed results? We can get current results from RSpec&rsquo;s reporter variable and count successful results.</p>
+<p>But what if I want to hear more detailed results? We can get current results from RSpec&rsquo;s reporter variable and count the number of  successful results.</p>
 
 <pre><code class="ruby">reporter = RSpec.world.reporter
 examples_count = reporter.examples.count
@@ -54,7 +55,7 @@ failed_examples_count = reporter.failed_examples.count
 successful_examples_count = examples_count - failed_examples_count
 </code></pre>
 
-<p>Now we can combine everything and listen how RSpec tells us the statistics after each run</p>
+<p>Now we can combine everything and listen to how RSpec tells us the statistics after each run</p>
 
 <pre><code class="ruby">config.after(:suite) do
   reporter = RSpec.world.reporter
@@ -65,7 +66,7 @@ successful_examples_count = examples_count - failed_examples_count
 end
 </code></pre>
 
-<p>What if we don&rsquo;t want to hear this annoying text all the time when we are running single test or sitting in the silent office? What if we don&rsquo;t want to scare our roommates?</p>
+<p>What if we don&rsquo;t want to hear this annoying text all the time, like when you are just running single tests, or sitting in the silent office and don’t want to bother others with an announcement of the results of your tests or if you don&rsquo;t want to scare your roommates?</p>
 
 <p>I found that we can&rsquo;t easily pass the options to the <code>rspec</code> command, BUT we can use environment variables to set some parameters.</p>
 
@@ -82,7 +83,7 @@ end
 end
 </code></pre>
 
-<p>Thats it! A bit of code and we have a reminder about completed tests :)</p>
+<p>That’s it! A bit of code and we now have a helpful reminder for completed tests :)</p>
 ]]></content>
   </entry>
   

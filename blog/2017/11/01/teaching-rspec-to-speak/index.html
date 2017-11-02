@@ -9,8 +9,7 @@
   <meta name="author" content="Alexandr Kovtunov">
 
   
-  <meta name="description" content="As a Ruby on Rails developer, I&rsquo;m writing RSpec tests a lot and for big applications it takes a lot of time to run them all.
-On my current &hellip;">
+  <meta name="description" content="As a Ruby on Rails developer, I write a lot of RSpec tests, and for big applications, it takes a lot of time to run them all. For my current project &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -98,18 +97,19 @@ On my current &hellip;">
   </header>
 
 
-<div class="entry-content"><p>As a Ruby on Rails developer, I&rsquo;m writing RSpec tests a lot and for big applications it takes a lot of time to run them all.
-On my current project tests take close to half an hour to run, so I&rsquo;m getting disturbed by another tasks, funny Facebook memes or interesting YouTube videos. As a result, my running tests are being forgotten. I&rsquo;ve spent some time to find a good solution to remind me about them, and I found it.</p>
+<div class="entry-content"><p>As a Ruby on Rails developer, I write a lot of RSpec tests, and for big applications, it takes a lot of time to run them all.</p>
+
+<p>For my current project tests, it takes close to half an hour to run, so I&rsquo;m often getting distracted by other tasks, funny Facebook memes, or interesting YouTube videos. As a result, my running tests are being forgotten. I&rsquo;ve spent some time to try to find a good solution to remind me about these running tests, and I’ve found it.</p>
 
 <!--more-->
 
 
 <h2>TTS - Text to Speech. (Time to Speak :P )</h2>
 
-<p>I was wondering if I can use the Google Translate voice to tell me when my tests are done and I found a way to do it.
-We just need a <a href="https://github.com/c2h2/tts">tts</a> gem and some magic around.</p>
+<p>I was wondering if I can use the Google Translate voice to tell me when my tests were done, and I found a way to do it.
+We just need a <a href="https://github.com/c2h2/tts">tts</a> gem and a bit of magic.</p>
 
-<p>At first, let&rsquo;s install the tts gem by adding it to the <code>Gemfile</code></p>
+<p>First, install the tts gem by adding it to the <code>Gemfile</code></p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="s1">&#39;tts&#39;</span>
@@ -131,9 +131,9 @@ We just need a <a href="https://github.com/c2h2/tts">tts</a> gem and some magic 
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>So, after the whole bunch of tests (<code>config.after(:suite)</code>) the code will run tts method <code>play</code>, that will tell us that tests were completed.</p>
+<p>So, after a whole bunch of tests (<code>config.after(:suite)</code>) the code will run tts method <code>play</code>, that will tell us that tests were completed.</p>
 
-<p>But what if I want to hear more detailed results? We can get current results from RSpec&rsquo;s reporter variable and count successful results.</p>
+<p>But what if I want to hear more detailed results? We can get current results from RSpec&rsquo;s reporter variable and count the number of  successful results.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -146,7 +146,7 @@ We just need a <a href="https://github.com/c2h2/tts">tts</a> gem and some magic 
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Now we can combine everything and listen how RSpec tells us the statistics after each run</p>
+<p>Now we can combine everything and listen to how RSpec tells us the statistics after each run</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -165,7 +165,7 @@ We just need a <a href="https://github.com/c2h2/tts">tts</a> gem and some magic 
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>What if we don&rsquo;t want to hear this annoying text all the time when we are running single test or sitting in the silent office? What if we don&rsquo;t want to scare our roommates?</p>
+<p>What if we don&rsquo;t want to hear this annoying text all the time, like when you are just running single tests, or sitting in the silent office and don’t want to bother others with an announcement of the results of your tests or if you don&rsquo;t want to scare your roommates?</p>
 
 <p>I found that we can&rsquo;t easily pass the options to the <code>rspec</code> command, BUT we can use environment variables to set some parameters.</p>
 
@@ -192,7 +192,7 @@ We just need a <a href="https://github.com/c2h2/tts">tts</a> gem and some magic 
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Thats it! A bit of code and we have a reminder about completed tests :)</p>
+<p>That’s it! A bit of code and we now have a helpful reminder for completed tests :)</p>
 </div>
 
 
