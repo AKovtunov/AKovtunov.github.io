@@ -11,11 +11,22 @@ lang: en
 
 # Social / links (edit these)
 github_username: AKovtunov
+social:
+  name: Alex Kovtunov
+  links:
+    - https://github.com/AKovtunov
+    - https://www.linkedin.com/in/akovtunov/
+
+# Analytics — fill in ONE to enable it; leave blank to keep analytics off.
+google_analytics:            # e.g. G-XXXXXXXXXX  (Google Analytics 4)
+plausible_domain:            # e.g. akovtunov.github.io  (Plausible)
+cloudflare_analytics_token:  # e.g. 0123abc...  (Cloudflare Web Analytics)
 
 # --- Build settings ---
 markdown: kramdown
 highlighter: rouge
 permalink: /blog/:year/:month/:day/:title/
+future: true
 
 kramdown:
   input: GFM

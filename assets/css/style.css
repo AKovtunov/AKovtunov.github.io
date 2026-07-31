@@ -51,16 +51,17 @@ body {
 }
 
 /* Playful repeating doodle background (stars, rockets, cars, gears) */
-body::before {
-  content: "";
+.doodle-bg {
   position: fixed;
   inset: 0;
   z-index: -1;
   background-image: url("/assets/images/doodles.svg");
   background-repeat: repeat;
   background-size: 300px 300px;
+  background-position: 0 0;
   opacity: var(--doodle-opacity);
   pointer-events: none;
+  will-change: background-position;
 }
 
 .wrap {
@@ -153,6 +154,26 @@ main.wrap {
 .post-list h3 a:hover { color: var(--accent); text-decoration: none; }
 .post-list .entry-meta { color: var(--muted); font-size: .85rem; margin: 0 0 .5rem; }
 .post-list .entry-excerpt { color: var(--muted); margin: 0; }
+
+/* Post cards with first-image thumbnail */
+.post-card { display: flex; gap: 1.15rem; align-items: flex-start; }
+.post-card .thumb {
+  flex: 0 0 130px; width: 130px; height: 90px;
+  border-radius: 12px; overflow: hidden; display: block;
+  border: 1px solid var(--border); background: var(--surface-2);
+}
+.post-card .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.post-card .thumb--empty {
+  background-image: url("/assets/images/doodles.svg");
+  background-size: 150px; background-position: center; background-repeat: repeat;
+  opacity: .85;
+}
+.post-card .card-body { flex: 1 1 auto; min-width: 0; }
+
+@media (max-width: 560px) {
+  .post-card { flex-direction: column; gap: .75rem; }
+  .post-card .thumb { width: 100%; flex-basis: auto; height: 150px; }
+}
 
 .tag {
   display: inline-block; font-size: .72rem; font-weight: 600; text-transform: lowercase;

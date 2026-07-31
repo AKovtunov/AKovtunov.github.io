@@ -9,8 +9,10 @@
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
   {%- feed_meta -%}
   {%- seo -%}
+  {%- include analytics.html -%}
 </head>
 <body>
+  <div class="doodle-bg" aria-hidden="true"></div>
   <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="site-header">
@@ -38,5 +40,18 @@
       <a href="{{ '/atom.xml' | relative_url }}">RSS</a>
     </div>
   </footer>
+
+  <script>
+    (function () {
+      var el = document.querySelector('.doodle-bg');
+      if (!el) return;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var ticking = false;
+      function update() { el.style.backgroundPositionY = (window.scrollY * 0.25) + 'px'; ticking = false; }
+      window.addEventListener('scroll', function () {
+        if (!ticking) { requestAnimationFrame(update); ticking = true; }
+      }, { passive: true });
+    })();
+  </script>
 </body>
 </html>

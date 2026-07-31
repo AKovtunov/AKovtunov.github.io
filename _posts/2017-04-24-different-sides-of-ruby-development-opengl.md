@@ -4,6 +4,7 @@ title: "Different Sides of Ruby Development: OpenGL"
 date: 2017-04-24 12:03:59 +0200
 tags: [ruby, opengl, graphics]
 description: "Exploring 3D graphics in Ruby with the OpenGL and Gosu gems, from drawing an axis to rendering shapes."
+image: /images/ruby_opengl/blan_eeeeee1.jpg
 ---
 
 > This is a copy of my [original post for Diatom Enterprises](http://www.diatomenterprises.com/different-sides-of-ruby-development-opengl/)

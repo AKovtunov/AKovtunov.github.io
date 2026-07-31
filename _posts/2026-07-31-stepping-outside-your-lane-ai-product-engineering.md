@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Stepping Outside Your Lane: Using AI to Bridge Product and Engineering"
-date: 2026-07-31 12:00:00 -0700
+date: 2026-07-31 08:30:00 -0700
 tags: [leadership, ai, design-systems, product]
 description: "A small example of engineering leadership: using AI to turn early wireframes into an implementation-ready direction, and reducing ambiguity between product and engineering along the way."
 ---

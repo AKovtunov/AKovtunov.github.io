@@ -4,6 +4,7 @@ title: "React Native in One Day: Android Application for Tracking Your Spends Wi
 date: 2017-04-23 00:32:26 +0200
 tags: [react-native, android, javascript]
 description: "Building an Android expense-tracking app with Google Maps in a single day using React Native."
+image: /images/react_maps/title_image.png
 ---
 
 > This is a copy of my [original post for Diatom Enterprises](http://www.diatomenterprises.com/react-native-in-one-day-android-application-for-tracking-your-spends-with-google-maps-support/)

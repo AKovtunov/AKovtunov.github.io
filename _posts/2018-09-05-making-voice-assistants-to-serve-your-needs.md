@@ -4,6 +4,7 @@ title: "Making Voice Assistants to Serve Your Needs"
 date: 2018-09-05 12:21:58 +0300
 tags: [alexa, voice, iot]
 description: "How a voice assistant like Amazon Alexa can go beyond a home gadget and boost efficiency and productivity in the workplace."
+image: /images/voice_assistants/cover_voice_assistant.jpg
 ---
 
 > Originally published on the [Diatom Enterprises blog](https://diatomenterprises.com/blog/making-voice-assistants-to-serve-your-needs/).

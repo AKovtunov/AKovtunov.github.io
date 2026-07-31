@@ -4,6 +4,7 @@ title: "Gamedev on Ruby? Why Not!"
 date: 2017-04-23 12:18:04 +0200
 tags: [ruby, gamedev]
 description: "Building a terminal Snake game in Ruby - a fun break from web development."
+image: /images/ruby_snake/Screenshot-from-2016-08-17-034112.png
 ---
 
 > This is a copy of my [original post for Diatom Enterprises](http://www.diatomenterprises.com/gamedev-on-ruby-why-not/)

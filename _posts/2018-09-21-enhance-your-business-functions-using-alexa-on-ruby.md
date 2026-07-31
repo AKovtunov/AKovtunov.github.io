@@ -4,6 +4,7 @@ title: "Enhance Your Business Functions Using Alexa on Ruby"
 date: 2018-09-21 12:51:02 +0300
 tags: [ruby, alexa, voice, iot]
 description: "A hands-on walkthrough of building an Amazon Alexa skill backed by a Ruby (Sinatra) server to access company data by voice."
+image: /images/alexa_ruby/Alexa-on-Ruby_cover.jpg
 ---
 
 > Originally published on the [Diatom Enterprises blog](https://diatomenterprises.com/blog/enhance-your-business-functions-using-alexa-on-ruby/).
