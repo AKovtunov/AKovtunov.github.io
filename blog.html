@@ -1,0 +1,22 @@
+---
+layout: default
+title: Writing
+permalink: /blog/
+---
+<header class="page-header">
+  <h1 class="page-title">Writing</h1>
+</header>
+
+<p class="section-label">{{ site.posts | size }} posts</p>
+<ul class="post-list">
+  {%- for post in site.posts %}
+  <li>
+    <h3><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h3>
+    <p class="entry-meta">
+      <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%B %-d, %Y" }}</time>
+      {%- for tag in post.tags %} <span class="tag">{{ tag }}</span>{% endfor %}
+    </p>
+    <p class="entry-excerpt">{{ post.description | default: post.excerpt | strip_html | truncate: 180 }}</p>
+  </li>
+  {%- endfor %}
+</ul>
